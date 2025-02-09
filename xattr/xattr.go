@@ -2,6 +2,7 @@ package xattr
 
 import (
 	"io/fs"
+	"os"
 	"path/filepath"
 
 	"github.com/pirmd/epub"
@@ -9,9 +10,11 @@ import (
 	"github.com/pkg/xattr"
 )
 
+
+var ebookdir = os.Getenv("HOME")
 const (
 	// ebookdir = "$HOME/Downloads/Ebooks/"
-  ebookdir = "/var/home/dd/Downloads/Ebooks/"
+	// ebookdir = "/var/home/dd/Downloads/Ebooks/"
 	// The extended attribute we want
 	prefix = "user.xdg.tags"
 )
@@ -56,7 +59,7 @@ func GetXattr() []string {
 		}
 		if (string(value)) == "" {
 			tags = append(tags, "untagged")
-      continue
+			continue
 		}
 		// We can append the actual name here to a filewith tags list
 		tags = append(tags, string(value))
@@ -64,11 +67,10 @@ func GetXattr() []string {
 	return tags
 }
 
-
 // Get xattr map
 func GetXattrmap() map[string]string {
 	filelist := find(ebookdir, ".epub")
-  tags := make(map[string]string)
+	tags := make(map[string]string)
 
 	for _, actualname := range filelist {
 		value, err := xattr.Get(actualname, prefix)
@@ -77,11 +79,36 @@ func GetXattrmap() map[string]string {
 		}
 		if (string(value)) == "" {
 			// append as "untagged"
-      tags[actualname] = "untagged"
-      continue
+			tags[actualname] = "untagged"
+			continue
 		}
-    tags[actualname] = string(value)
+		tags[actualname] = string(value)
 
 	}
-  return tags
+	return tags
+}
+
+func Getfiles(tag string)[]string{
+  filelist := find(ebookdir,".epub" )
+  // store files here
+  var files []string
+  // Loop over th epub files
+  for _, actualname := range filelist {
+    value, err := xattr.Get(actualname, prefix)
+    if err != nil{
+      errors.New("got error")
+
+    }
+    if (string(value)) == ""{
+      continue
+    }
+    if (string(value)) == tag {
+      actualname , err := epub.GetMetadataFromFile(actualname)
+      if err != nil {
+        errors.New("got an error")
+      }
+      files = append(files, actualname.Title...)
+    }
+  }
+  return files
 }

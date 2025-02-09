@@ -36,3 +36,14 @@ func TestGetxattrMap(t *testing.T) {
 		t.Error(cmp.Diff(want, got))
 	}
 }
+
+
+func TestGetfiles(t *testing.T) {
+	// I want the slice of file names
+	want := []string{"Demons", "Tao Te Ching"}
+	got := xattr.Getfiles("philosophy")
+
+	if !cmp.Equal(want, got) {
+		t.Error(cmp.Diff(want, got))
+	}
+}
