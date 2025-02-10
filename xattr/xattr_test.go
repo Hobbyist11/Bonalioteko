@@ -47,3 +47,12 @@ func TestGetfiles(t *testing.T) {
 		t.Error(cmp.Diff(want, got))
 	}
 }
+
+func TestAddtags(t *testing.T) {
+	// I want to be able to add a tag to a certain file
+	want := []string{"", "",""}
+	got := xattr.GetXattrmap()
+	if !cmp.Equal(want, got) {
+		t.Error(cmp.Diff(want, got))
+	}
+}
