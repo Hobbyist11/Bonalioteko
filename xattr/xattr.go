@@ -11,7 +11,8 @@ import (
 )
 
 
-var ebookdir = os.Getenv("HOME")
+var homedir, _ = os.UserHomeDir()
+var ebookdir = filepath.Join(homedir,"Downloads/Ebooks")
 const (
 	// ebookdir = "$HOME/Downloads/Ebooks/"
 	// ebookdir = "/var/home/dd/Downloads/Ebooks/"
