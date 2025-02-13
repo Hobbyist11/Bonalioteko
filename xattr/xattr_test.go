@@ -35,9 +35,8 @@ func TestGetXattr(t *testing.T) {
 }
 
 //	// A map has an ID which should be faster for retrieval
-//
-// Tags should be unique, there should just be tag 1 and tag 2
 // Selected tag must show the files associated with these tags
+// The IDs are unique, however the values aren't but we only need to render them once in the UI
 
 func TestGetxattrMap(t *testing.T) {
 	want := map[string]string{
@@ -79,9 +78,9 @@ func TestGetfiles(t *testing.T) {
 func TestAddtags(t *testing.T) {
 	// I want to be able to add a tag to a certain file
 	want := map[string]string{
-		"/var/home/dd/Downloads/Ebooks/leo-tolstoy_the-kingdom-of-god-is-within-you_leo-wiener_advanced.epub":         "untagged",
+		"/var/home/dd/Downloads/Ebooks/leo-tolstoy_the-kingdom-of-god-is-within-you_leo-wiener_advanced.epub":         "religion",
 	}
-	got := xattr.GetXattrmap()
+	got := xattr.Addtag("religion")
 	if !cmp.Equal(want, got) {
 		t.Error(cmp.Diff(want, got))
 	}

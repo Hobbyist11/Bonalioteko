@@ -113,3 +113,9 @@ func Getfiles(tag string)[]string{
   }
   return files
 }
+
+func Addtag(file string, tag []byte){
+  xattr.Set(file, prefix,tag)
+}
+
+
