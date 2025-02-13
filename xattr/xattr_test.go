@@ -10,7 +10,22 @@ import (
 
 func TestGetXattr(t *testing.T) {
 	// I want to see these tags that are found on a folder
-	want := []string{"philosophy", "religion"}
+	want := []string{
+		"philosophy",
+		"untagged",
+		"untagged",
+		"untagged",
+		"untagged",
+		"untagged",
+		"untagged",
+		"untagged",
+		"philosophy",
+		"untagged",
+		"untagged",
+		"religion",
+		"untagged",
+		"untagged",
+	}
 
 	got := xattr.GetXattr()
 
@@ -19,7 +34,6 @@ func TestGetXattr(t *testing.T) {
 	}
 }
 
-
 //	// A map has an ID which should be faster for retrieval
 //
 // Tags should be unique, there should just be tag 1 and tag 2
@@ -27,16 +41,30 @@ func TestGetXattr(t *testing.T) {
 
 func TestGetxattrMap(t *testing.T) {
 	want := map[string]string{
-		"/home/dd/Downloads/Ebooks/r-h-tawney_religion-and-the-rise-of-capitalism_advanced.epub": "religion",
-		"/home/dd/Downloads/Ebooks/laozi_tao-te-ching_james-legge_advanced.epub":                 "philosophy",
-		"/home/dd/Downloads/Ebooks/fyodor-dostoevsky_demons_constance-garnett_advanced.epub":     "philosophy",
+		"/home/dd/Downloads/Ebooks/fyodor-dostoevsky_demons_constance-garnett_advanced.epub":                          "philosophy",
+		"/home/dd/Downloads/Ebooks/laozi_tao-te-ching_james-legge_advanced.epub":                                      "philosophy",
+		"/home/dd/Downloads/Ebooks/r-h-tawney_religion-and-the-rise-of-capitalism_advanced.epub":                      "religion",
+		"/var/home/dd/Downloads/Ebooks/bertrand-russell_roads-to-freedom_advanced.epub":                               "untagged",
+		"/var/home/dd/Downloads/Ebooks/fyodor-dostoevsky_demons_constance-garnett_advanced.epub":                      "philosophy",
+		"/var/home/dd/Downloads/Ebooks/g-k-chesterton_heretics_advanced.epub":                                         "untagged",
+		"/var/home/dd/Downloads/Ebooks/g-k-chesterton_orthodoxy_advanced.epub":                                        "untagged",
+		"/var/home/dd/Downloads/Ebooks/g-k-chesterton_the-everlasting-man_advanced.epub":                              "untagged",
+		"/var/home/dd/Downloads/Ebooks/john-dewey_democracy-and-education_advanced.epub":                              "untagged",
+		"/var/home/dd/Downloads/Ebooks/john-dewey_human-nature-and-conduct_advanced.epub":                             "untagged",
+		"/var/home/dd/Downloads/Ebooks/john-locke_two-treatises-of-government_advanced.epub":                          "untagged",
+		"/var/home/dd/Downloads/Ebooks/karl-marx_friedrich-engels_the-communist-manifesto_samuel-moore_advanced.epub": "untagged",
+		"/var/home/dd/Downloads/Ebooks/laozi_tao-te-ching_james-legge_advanced.epub":                                  "philosophy",
+		"/var/home/dd/Downloads/Ebooks/leo-tolstoy_the-kingdom-of-god-is-within-you_leo-wiener_advanced.epub":         "untagged",
+		"/var/home/dd/Downloads/Ebooks/liam-oflaherty_the-informer_advanced.epub":                                     "untagged",
+		"/var/home/dd/Downloads/Ebooks/r-h-tawney_religion-and-the-rise-of-capitalism_advanced.epub":                  "religion",
+		"/var/home/dd/Downloads/Ebooks/rene-descartes_philosophical-works_john-veitch_advanced.epub":                  "untagged",
+		"/var/home/dd/Downloads/Ebooks/william-james_pragmatism_advanced.epub":                                        "untagged",
 	}
 	got := xattr.GetXattrmap()
 	if !cmp.Equal(want, got) {
 		t.Error(cmp.Diff(want, got))
 	}
 }
-
 
 func TestGetfiles(t *testing.T) {
 	// I want the slice of file names
@@ -50,7 +78,9 @@ func TestGetfiles(t *testing.T) {
 
 func TestAddtags(t *testing.T) {
 	// I want to be able to add a tag to a certain file
-	want := []string{"", "",""}
+	want := map[string]string{
+		"/var/home/dd/Downloads/Ebooks/leo-tolstoy_the-kingdom-of-god-is-within-you_leo-wiener_advanced.epub":         "untagged",
+	}
 	got := xattr.GetXattrmap()
 	if !cmp.Equal(want, got) {
 		t.Error(cmp.Diff(want, got))
