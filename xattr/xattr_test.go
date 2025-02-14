@@ -66,6 +66,7 @@ func TestGetxattrMap(t *testing.T) {
 }
 
 func TestGetfiles(t *testing.T) {
+  // Getting files with the selected tag/ value in map reverse of getting value from key
 	// I want the slice of file names
 	want := []string{"Demons", "Tao Te Ching"}
 	got := xattr.Getfiles("philosophy")
