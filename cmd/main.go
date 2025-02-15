@@ -128,3 +128,43 @@ func ListEpubs(directory string) []string {
 func (m Model) Init() tea.Cmd {
 	return nil
 }
+
+
+// UPDATE=handle incoming events
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.Height = 10
+		m.max = m.Height - 1
+
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "ctrl+c", "q":
+			return m, tea.Quit
+
+		case "up", "k":
+			m.highlighted--
+			if m.highlighted < 0 {
+				m.highlighted = 0
+			}
+			if m.highlighted < m.min {
+				m.min--
+				m.max--
+			}
+
+		case "down", "j":
+			m.highlighted++
+			if m.highlighted >= len(m.choices) {
+				m.highlighted = len(m.choices) - 1
+			}
+			if m.highlighted > m.max {
+				m.min++
+				m.max++
+			}
+
+
+}
+
+	}
+	return m, nil
+}
