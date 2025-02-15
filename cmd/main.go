@@ -97,3 +97,34 @@ func DefaultStylesWithRenderer(r *lipgloss.Renderer) Styles {
 		selectedtag: r.NewStyle().Italic(true).Foreground(lipgloss.Color("21")),
 	}
 }
+
+func find(root, ext string) []string {
+	var filename []string
+	filepath.WalkDir(root, func(s string, d fs.DirEntry, e error) error {
+		if e != nil {
+			return e
+		}
+		if filepath.Ext(d.Name()) == ext {
+			filename = append(filename, s)
+		}
+		return nil
+	})
+	return filename
+}
+
+func ListEpubs(directory string) []string {
+	var sr []string
+	for _, sr2 := range find(directory, ".epub") {
+		sr2, err := epub.GetMetadataFromFile(sr2)
+		if err != nil {
+			errors.Cause(err)
+		}
+		sr = append(sr, sr2.Title...)
+	}
+	return sr
+}
+
+// Runs on start up
+func (m Model) Init() tea.Cmd {
+	return nil
+}
