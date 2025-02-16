@@ -10,6 +10,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var homedir, _ = os.UserHomeDir()
+var ebookdir = filepath.Join(homedir,"Downloads/Ebooks")
+
 // AppDir is the name of the directory where the config file is stored.
 const AppDir = "Bonalioteko"
 
@@ -39,7 +42,7 @@ type ConfigParser struct{}
 func (parser ConfigParser) getDefaultConfig() Config {
 	return Config{
 		Settings: SettingsConfig{
-			EbookDir: "/var/home/dd/Downloads/",
+			EbookDir: ebookdir,
 		},
 	}
 }
