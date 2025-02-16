@@ -9,6 +9,7 @@ require (
 	github.com/pirmd/epub v0.3.1
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/xattr v0.4.10
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
