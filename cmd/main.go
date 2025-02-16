@@ -168,3 +168,51 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	return m, nil
 }
+
+// view
+func (m Model) View() string {
+	var s strings.Builder
+
+	for i, tagname := range m.tags {
+
+		if m.selectedtag == i {
+			s.WriteString(m.Styles.selectedtag.Render(tagname))
+			continue
+		}
+		s.WriteString(m.Styles.tags.Render(tagname) + " ")
+	}
+	s.WriteString("\n")
+
+	for i, items := range m.choices {
+		if i < m.min || i > m.max {
+			continue
+		}
+
+		if m.highlighted == i {
+			highlighted := fmt.Sprint(m.Styles.highlighted.Render(items))
+			s.WriteString(m.Styles.cursor.Render(m.cursor) + m.Styles.highlighted.Render(highlighted))
+			s.WriteRune('\n')
+			continue
+		}
+
+		s.WriteString(m.Styles.choices.Render(items))
+		s.WriteRune('\n')
+
+	}
+	return s.String()
+}
+
+func main() {
+	f, err := tea.LogToFile("debug.log", "debug")
+	if err != nil {
+		log.Fatalf("err: %w", err)
+	}
+	defer f.Close()
+
+	p := tea.NewProgram(initialModel())
+
+	if _, err := p.Run(); err != nil {
+		fmt.Printf("Alas, there has been an error %v", err)
+		os.Exit(1)
+	}
+}
