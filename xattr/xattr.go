@@ -89,6 +89,22 @@ func GetXattrmap() map[string]string {
 	return tags
 }
 
+// Gets the list of files and their tags
+func GetXattrMap2(){
+
+}
+// Gets the file/s associated with the selectedTag
+
+// func GetTagsMaps(selectedTag string, tagFiles map[string][]string) {
+//   fileTags := make(map[string][]string)
+//   tagFiles := make(map[string][]string)
+//   filelist := find(ebookdir, epub)
+//   if files, ok := tagFiles[selectedTag]; ok {
+//
+//   }
+//
+// }
+
 func Getfiles(tag string)[]string{
   filelist := find(ebookdir,".epub" )
   // store files here
@@ -114,8 +130,8 @@ func Getfiles(tag string)[]string{
   return files
 }
 
-func Addtag(file string, tag []byte){
-  xattr.Set(file, prefix,tag)
-}
+// func Addtag(file string, tag string){
+//   xattr.Set(file, prefix,tag)
+// }
 
 
