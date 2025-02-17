@@ -129,7 +129,6 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-
 // UPDATE=handle incoming events
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -162,8 +161,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.max++
 			}
 
+		case "1":
+			m.selectedtag = 0
+			m.choices = xattr.Getfiles(m.tags[0])
+		case "2":
+			m.selectedtag = 1
+			m.choices = xattr.Getfiles(m.tags[1])
+		case "3":
+			m.selectedtag = 2
+			m.choices = xattr.Getfiles(m.tags[2])
 
-}
+		}
 
 	}
 	return m, nil
@@ -172,6 +180,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // view
 func (m Model) View() string {
 	var s strings.Builder
+  //TODO: Make the tags unique, i.e untagged only shows up onces
 
 	for i, tagname := range m.tags {
 
