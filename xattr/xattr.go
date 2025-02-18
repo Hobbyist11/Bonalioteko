@@ -10,9 +10,11 @@ import (
 	"github.com/pkg/xattr"
 )
 
+var (
+	homedir, _ = os.UserHomeDir()
+	ebookdir   = filepath.Join(homedir, "Downloads/Ebooks")
+)
 
-var homedir, _ = os.UserHomeDir()
-var ebookdir = filepath.Join(homedir,"Downloads/Ebooks")
 const (
 	// ebookdir = "$HOME/Downloads/Ebooks/"
 	// ebookdir = "/var/home/dd/Downloads/Ebooks/"
@@ -90,48 +92,73 @@ func GetXattrmap() map[string]string {
 }
 
 // Gets the list of files and their tags
-func GetXattrMap2(){
+func GetXattrMap2() {
+	filelist := find(ebookdir, ".epub")
 
+	// File path to tag
+	fileToTag := make(map[string][]string)
+  // Tags to file path
+	tagToFiles := make(map[string][]string)
+
+	fileTags[filePath] = tags
+
+	for _, tag := range tags {
+		tagFiles[tag] = append(tagFiles[tag], filePath)
+	}
+
+	if len(tags) == 0 {
+		tagFiles["untagged"] = append(tagFiles["untagged"], filePath)
+	}
 }
+
+func getUniqueTags(tagFiles map[string][]string) []string {
+	uniqueTags := []string{}
+	seenTags := make(map[string]bool) // Use a map to track seen tags
+
+	for tag := range tagFiles {
+		if !seenTags[tag] {
+			uniqueTags = append(uniqueTags, tag)
+			seenTags[tag] = true
+		}
+	}
+
+	return uniqueTags
+}
+
 // Gets the file/s associated with the selectedTag
+func GetTagsMaps(selectedTag string, tagFiles map[string][]string) string {
+	if files, ok := tagFiles[selectedTag]; ok {
+		for _, file := range files {
+			return file
+		}
+	} 
+		return "No files found"
+}
 
-// func GetTagsMaps(selectedTag string, tagFiles map[string][]string) {
-//   fileTags := make(map[string][]string)
-//   tagFiles := make(map[string][]string)
-//   filelist := find(ebookdir, epub)
-//   if files, ok := tagFiles[selectedTag]; ok {
-//
-//   }
-//
-// }
-
-func Getfiles(tag string)[]string{
-  filelist := find(ebookdir,".epub" )
-  // store files here
-  var files []string
-  // Loop over th epub files
-  for _, actualname := range filelist {
-    value, err := xattr.Get(actualname, prefix)
-    if err != nil{
-      errors.New("got error")
-
-    }
-    if (string(value)) == ""{
-      continue
-    }
-    if (string(value)) == tag {
-      actualname , err := epub.GetMetadataFromFile(actualname)
-      if err != nil {
-        errors.New("got an error")
-      }
-      files = append(files, actualname.Title...)
-    }
-  }
-  return files
+func Getfiles(tag string) []string {
+	filelist := find(ebookdir, ".epub")
+	// store files here
+	var files []string
+	// Loop over th epub files
+	for _, actualname := range filelist {
+		value, err := xattr.Get(actualname, prefix)
+		if err != nil {
+			errors.New("got error")
+		}
+		if (string(value)) == "" {
+			continue
+		}
+		if (string(value)) == tag {
+			actualname, err := epub.GetMetadataFromFile(actualname)
+			if err != nil {
+				errors.New("got an error")
+			}
+			files = append(files, actualname.Title...)
+		}
+	}
+	return files
 }
 
 // func Addtag(file string, tag string){
 //   xattr.Set(file, prefix,tag)
 // }
-
-
