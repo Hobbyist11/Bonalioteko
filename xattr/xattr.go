@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pirmd/epub"
 	"github.com/pkg/errors"
@@ -91,15 +92,42 @@ func GetXattrmap() map[string]string {
 	return tags
 }
 
+func getTagsFromXattr(filePath string) ([]string, error) {
+	tagsBytes, err := xattr.Get(filePath,prefix)
+	if err != nil {
+		// If the attribute doesn't exist, treat it as no tags, not as an error.
+		if strings.Contains(err.Error(), "no such attribute") { // Check for attribute not found error
+			return []string{}, nil
+		}
+		return nil, err
+	}
+
+	// Assuming tags are comma-separated strings
+	tagsString := string(tagsBytes)
+	if tagsString == "" { // Handle empty tags attribute
+		return []string{"untagged"}, nil
+	}
+	tags := strings.Split(tagsString, ",")
+	return tags, nil
+}
+
 // Gets the list of files and their tags
 func GetXattrMap2() {
 	filelist := find(ebookdir, ".epub")
 
 	// File path to tag
 	fileToTag := make(map[string][]string)
-  // Tags to file path
+	// Tags to file path
 	tagToFiles := make(map[string][]string)
 
+	for _, fileNames := range filelist {
+    tags ,_:= getTagsFromXattr(fileNames)
+		addFile(fileNames, tags, fileToTag, tagToFiles)
+
+	}
+}
+
+func addFile(filePath string, tags []string, fileTags map[string][]string, tagFiles map[string][]string) {
 	fileTags[filePath] = tags
 
 	for _, tag := range tags {
@@ -125,14 +153,15 @@ func getUniqueTags(tagFiles map[string][]string) []string {
 	return uniqueTags
 }
 
+
 // Gets the file/s associated with the selectedTag
 func GetTagsMaps(selectedTag string, tagFiles map[string][]string) string {
 	if files, ok := tagFiles[selectedTag]; ok {
 		for _, file := range files {
 			return file
 		}
-	} 
-		return "No files found"
+	}
+	return "No files found"
 }
 
 func Getfiles(tag string) []string {
