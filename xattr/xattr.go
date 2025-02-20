@@ -112,19 +112,34 @@ func getTagsFromXattr(filePath string) ([]string, error) {
 }
 
 // Gets the list of files and their tags
-func GetXattrMap2() {
+func GetXattrMapFilePathToTag() map[string][]string {
 	filelist := find(ebookdir, ".epub")
 
 	// File path to tag
 	fileToTag := make(map[string][]string)
-	// Tags to file path
-	tagToFiles := make(map[string][]string)
-
+	
 	for _, fileNames := range filelist {
     tags ,_:= getTagsFromXattr(fileNames)
 		addFile(fileNames, tags, fileToTag, tagToFiles)
 
 	}
+  return fileToTag
+}
+
+// Gets the tags and the files associated with it.
+func GetXattrMapTagToFilePath() map[string][]string{
+
+	filelist := find(ebookdir, ".epub")
+// Tags to file path
+	tagToFiles := make(map[string][]string)
+for _, fileNames := range filelist {
+    tags ,_:= getTagsFromXattr(fileNames)
+		addFile(fileNames, tags, fileToTag, tagToFiles)
+
+	}
+  return tagToFiles
+
+
 }
 
 func addFile(filePath string, tags []string, fileTags map[string][]string, tagFiles map[string][]string) {
@@ -164,6 +179,7 @@ func GetTagsMaps(selectedTag string, tagFiles map[string][]string) string {
 	return "No files found"
 }
 
+// Gets the files associated with a tag
 func Getfiles(tag string) []string {
 	filelist := find(ebookdir, ".epub")
 	// store files here
