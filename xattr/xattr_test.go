@@ -81,7 +81,7 @@ func TestGetXattrPathtoTags(t *testing.T){
 		"/var/home/dd/Downloads/Ebooks/rene-descartes_philosophical-works_john-veitch_advanced.epub":                 {"untagged",} ,
 		"/var/home/dd/Downloads/Ebooks/william-james_pragmatism_advanced.epub":                                       {"untagged",} ,
 	}
-  got := xattr.GetXattrMap2()
+  got := xattr.GetXattrMapFilePathToTag()
 
 if !cmp.Equal(want, got) {
 		t.Error(cmp.Diff(want, got))
