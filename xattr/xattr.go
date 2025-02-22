@@ -92,8 +92,8 @@ func GetXattrmap() map[string]string {
 	return tags
 }
 
-func getTagsFromXattr(filePath string) ([]string, error) {
-	tagsBytes, err := xattr.Get(filePath,prefix)
+func GetTagsFromPath(filePath string) ([]string, error) {
+	tagsBytes, err := xattr.Get(filePath, prefix)
 	if err != nil {
 		// If the attribute doesn't exist, treat it as no tags, not as an error.
 		if strings.Contains(err.Error(), "no such attribute") { // Check for attribute not found error
@@ -117,35 +117,43 @@ func GetXattrMapFilePathToTag() map[string][]string {
 
 	// File path to tag
 	fileToTag := make(map[string][]string)
-	
+
 	for _, fileNames := range filelist {
-    tags ,_:= getTagsFromXattr(fileNames)
-		addFile(fileNames, tags, fileToTag )
+		tags, _ := GetTagsFromPath(fileNames)
+		addFileAndTag(fileNames, tags, fileToTag)
 
 	}
-  return fileToTag
+	return fileToTag
+}
+
+func addFileAndTag(filePath string, tags []string, mymap map[string][]string) {
+	for _, tag := range tags {
+		// filepaths are the keys, tags are the []value
+		mymap[filePath] = append(mymap[filePath], tag)
+	}
+
+	if len(tags) == 0 {
+		mymap["untagged"] = append(mymap["untagged"], filePath)
+	}
 }
 
 // Gets the tags and the files associated with it.
-func GetXattrMapTagToFilePath() map[string][]string{
-
+func GetXattrMapTagToFilePath() map[string][]string {
 	filelist := find(ebookdir, ".epub")
-// Tags to file path
+	// Tags to file path
 	tagToFiles := make(map[string][]string)
-for _, fileNames := range filelist {
-    tags ,_:= getTagsFromXattr(fileNames)
-		addFile(fileNames, tags,  tagToFiles)
+	for _, fileNames := range filelist {
+		tags, _ := GetTagsFromPath(fileNames)
+		addTagAndFile(fileNames, tags, tagToFiles)
 
 	}
-  return tagToFiles
-
-
+	return tagToFiles
 }
 
-func addFile(filePath string, tags []string, mymap map[string][]string) {
-	//fileTags[filePath] = tags
-
+// Adds the found tag to the file
+func addTagAndFile(filePath string, tags []string, mymap map[string][]string) {
 	for _, tag := range tags {
+		// tags are the keys, filepath is the []value
 		mymap[tag] = append(mymap[tag], filePath)
 	}
 
@@ -167,7 +175,6 @@ func getUniqueTags(tagFiles map[string][]string) []string {
 
 	return uniqueTags
 }
-
 
 // Gets the file/s associated with the selectedTag
 func GetTagsMaps(selectedTag string, tagFiles map[string][]string) string {
