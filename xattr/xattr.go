@@ -97,9 +97,9 @@ func GetTagsFromPath(filePath string) ([]string, error) {
 	if err != nil {
 		// If the attribute doesn't exist, treat it as no tags, not as an error.
 		if strings.Contains(err.Error(), "no such attribute") { // Check for attribute not found error
-			return []string{}, nil
+			return []string{"untagged"}, nil
 		}
-		return nil, err
+		return []string{"untagged"}, err
 	}
 
 	// Assuming tags are comma-separated strings
