@@ -112,6 +112,7 @@ func GetTagsFromPath(filePath string) ([]string, error) {
 }
 
 // Gets the list of files and their tags
+//TODO:
 func GetXattrMapFilePathToTag() map[string][]string {
 	filelist := find(ebookdir, ".epub")
 
@@ -127,14 +128,15 @@ func GetXattrMapFilePathToTag() map[string][]string {
 }
 
 func addFileAndTag(filePath string, tags []string, mymap map[string][]string) {
-	for _, tag := range tags {
-		// filepaths are the keys, tags are the []value
-		mymap[filePath] = append(mymap[filePath], tag)
-	}
-
-	if len(tags) == 0 {
-		mymap["untagged"] = append(mymap["untagged"], filePath)
-	}
+mymap[filePath] = tags
+	// for _, tag := range tags {
+	// 	// filepaths are the keys, tags are the []value
+	// 	mymap[tag] = append(mymap[tag], filePath)
+	// }
+	//
+	// if len(tags) == 0 {
+	// 	mymap["untagged"] = append(mymap["untagged"], filePath)
+	// }
 }
 
 // Gets the tags and the files associated with it.
