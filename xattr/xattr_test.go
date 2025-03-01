@@ -131,13 +131,13 @@ func TestGetfiles(t *testing.T) {
 	}
 }
 
-// func TestAddtags(t *testing.T) {
-// 	// I want to be able to add a tag to a certain file
-// 	want := map[string]string{
-// 		"/var/home/dd/Downloads/Ebooks/leo-tolstoy_the-kingdom-of-god-is-within-you_leo-wiener_advanced.epub":         "religion",
-// 	}
-// 	got := xattr.Addtag("/var/home/dd/Downloads/Ebooks/leo-tolstoy_the-kingdom-of-god-is-within-you_leo-wiener_advanced.epub","religion")
-// 	if !cmp.Equal(want, got) {
-// 		t.Error(cmp.Diff(want, got))
-// 	}
-// }
+func TestAddtags(t *testing.T) {
+	// I want to be able to add a tag to a certain file
+	want := map[string]string{
+		"/var/home/dd/Downloads/Ebooks/leo-tolstoy_the-kingdom-of-god-is-within-you_leo-wiener_advanced.epub":         "religion",
+	}
+	got := xattr.Addtag("/var/home/dd/Downloads/Ebooks/leo-tolstoy_the-kingdom-of-god-is-within-you_leo-wiener_advanced.epub","religion")
+	if !cmp.Equal(want, got) {
+		t.Error(cmp.Diff(want, got))
+	}
+}
