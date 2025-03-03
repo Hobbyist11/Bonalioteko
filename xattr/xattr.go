@@ -205,6 +205,6 @@ func Getfiles(tag string) []string {
 	return files
 }
 
-// func Addtag(file string, tag string){
-//   xattr.Set(file, prefix,tag)
-// }
+func Addtag(file string, tag string){
+  xattr.Set(file, prefix,tag)
+}
