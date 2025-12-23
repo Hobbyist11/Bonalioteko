@@ -1,5 +1,6 @@
 package main
 
+
 import (
 	"fmt"
 	"io/fs"
@@ -242,9 +243,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		// If not then select it
 		case " ":
 			m.selectedtagNum = m.highlightedtagpos
-			m.selectedtags = append(m.selectedtags, m.tagnames[m.selectedtagNum])
-			// TODO: render the title and not the filepath
-			m.choices = xattr.MultipleTagsFilter(m.selectedtags)
+
+			// It deletes it even if I'm not pointing to it
+			// go to this tagname, see if it's part of selectedtags, if yes, delete it
+			// even if this is true, appen still happens?
+			if len(m.selectedtags) > 0 && m.selectedtags[0] == m.tagnames[m.selectedtagNum] {
+				m.selectedtags = slices.DeleteFunc(m.selectedtags, func(s string) bool {
+					return m.tagnames[m.selectedtagNum] == s
+				})
+			} else {
+				m.selectedtags = append(m.selectedtags, m.tagnames[m.selectedtagNum])
+
+				// TODO: render the title and not the filepath
+				m.choices = xattr.MultipleTagsFilter(m.selectedtags)
+
+			}
 
 		}
 	}
@@ -257,13 +270,14 @@ func (m Model) View() string {
 
 	// Renders the UI for moving between tags
 	for i, tagchoice := range m.tagnames {
-		if slices.Contains(m.selectedtags ,tagchoice) {
-			s.WriteString(m.Styles.selectedtag.Render(tagchoice)+" ")
+		// Checks if selectedtags slice contains this tag, if yes render as selected
+		if slices.Contains(m.selectedtags, tagchoice) {
+			s.WriteString(m.Styles.selectedtag.Render(tagchoice) + " ")
 			continue
 		}
 		if m.highlightedtagpos == i {
 			// highlighted := fmt.Sprint(m.Styles.highlightedtag.Render(tagchoice))
-			s.WriteString(m.Styles.highlightedtag.Render(tagchoice)+" ")
+			s.WriteString(m.Styles.highlightedtag.Render(tagchoice) + " ")
 			continue
 		}
 		s.WriteString(m.Styles.tagnames.Render(tagchoice) + " ")
