@@ -1,6 +1,5 @@
 package main
 
-
 import (
 	"fmt"
 	"io/fs"
@@ -20,11 +19,14 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 )
+
 var cfg, err = config.ParseConfig()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	var ebookDir = cfg.Settings.EbookDir
+
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+var ebookDir = cfg.Settings.EbookDir
+
 // getTitlesFromPaths converts a slice of file paths into a slice of ePub titles.
 func getTitlesFromPaths(paths []string) []string {
 	var titles []string
@@ -243,8 +245,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.maxtag--
 			}
 
-		// TODO: Unselect a tag if " " is pressed again, simply check if tagname is selected if yes, then unselect (remove from slice)
-		// If not then select it
 		case " ":
 			m.selectedtagNum = m.highlightedtagpos
 
@@ -256,12 +256,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m.tagnames[m.selectedtagNum] == s
 				})
 
-	m.choices = ListEpubs(ebookDir)
+				m.choices = ListEpubs(ebookDir)
 			} else {
 				m.selectedtags = append(m.selectedtags, m.tagnames[m.selectedtagNum])
 
-				// TODO: render the title and not the filepath
 				m.choices = xattr.MultipleTagsFilter(m.selectedtags)
+				m.choices = getTitlesFromPaths(m.choices)
 			}
 
 		}
