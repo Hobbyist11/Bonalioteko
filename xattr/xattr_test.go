@@ -8,39 +8,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-/*
-func TestGetXattr(t *testing.T) {
-	// I want to see these tags that are found on a folder
-	want := []string{
-		"untagged",
-		"philosophy",
-		"untagged",
-		"untagged",
-		"untagged",
-		"untagged",
-		"untagged",
-		"untagged",
-		"untagged",
-		"philosophy",
-		"untagged",
-		"untagged",
-		"religion",
-		"untagged",
-		"untagged",
-	}
-
-	got := xattr.GetXattr()
-
-	if !cmp.Equal(want, got) {
-		t.Error(cmp.Diff(want, got))
-	}
-}
-*/
-
-// A map has an ID which should be faster for retrieval
-// Selected tag must show the files associated with these tags
-// The IDs are unique, however the values aren't but we only need to render them once in the UI
-
 func TestGetxattrMap(t *testing.T) {
 	want := map[string]string{
 		"/var/home/dd/Downloads/Ebooks/bertrand-russell_roads-to-freedom_advanced.epub":                               "untagged",
@@ -115,7 +82,6 @@ func TestGetXattrTagtoFilepath(t *testing.T) {
 			"/var/home/dd/Downloads/Ebooks/william-james_pragmatism_advanced.epub",
 		},
 
-		// This has multiple tags
 		"unread": {
 			"/var/home/dd/Downloads/Ebooks/g-k-chesterton_the-everlasting-man_advanced.epub",
 		},
@@ -129,14 +95,12 @@ func TestGetXattrTagtoFilepath(t *testing.T) {
 }
 
 func TestMultipleTagsFilter(t *testing.T) {
-
 	type testCase struct {
 		tags []string
 		want []string
 	}
 
 	testCases := []testCase{
-		// Test single tag
 		{
 			tags: []string{"religion"},
 			want: []string{
@@ -144,7 +108,6 @@ func TestMultipleTagsFilter(t *testing.T) {
 				"/var/home/dd/Downloads/Ebooks/r-h-tawney_religion-and-the-rise-of-capitalism_advanced.epub",
 			},
 		},
-		// Test two out of three tags
 		{
 			tags: []string{"unread", "religion"},
 			want: []string{"/var/home/dd/Downloads/Ebooks/g-k-chesterton_the-everlasting-man_advanced.epub"},
@@ -157,8 +120,6 @@ func TestMultipleTagsFilter(t *testing.T) {
 			t.Errorf("MultipleTagsFilter(%v): want %v, got %v", tc.tags, tc.want, got)
 		}
 	}
-	// Want is the file names with these tags
-	// Make test case with single tag
 	want := []string{
 		"/var/home/dd/Downloads/Ebooks/g-k-chesterton_the-everlasting-man_advanced.epub",
 	}
@@ -168,25 +129,3 @@ func TestMultipleTagsFilter(t *testing.T) {
 		t.Error(cmp.Diff(want, got))
 	}
 }
-
-// func TestGetfiles(t *testing.T) {
-// 	// Getting files with the selected tag/ value in map reverse of getting value from key
-// 	// I want the slice of file names
-// 	want := []string{"Demons", "Tao Te Ching"}
-// 	got := xattr.Getfiles("philosophy")
-//
-// 	if !cmp.Equal(want, got) {
-// 		t.Error(cmp.Diff(want, got))
-// 	}
-// }
-
-// func TestAddtags(t *testing.T) {
-// 	// I want to be able to add a tag to a certain file
-// 	want := map[string]string{
-// 		"/var/home/dd/Downloads/Ebooks/leo-tolstoy_the-kingdom-of-god-is-within-you_leo-wiener_advanced.epub":         "religion",
-// 	}
-// 	got := xattr.Addtag("/var/home/dd/Downloads/Ebooks/leo-tolstoy_the-kingdom-of-god-is-within-you_leo-wiener_advanced.epub","religion")
-// 	if !cmp.Equal(want, got) {
-// 		t.Error(cmp.Diff(want, got))
-// 	}
-// }

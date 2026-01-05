@@ -20,13 +20,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-var cfg, err = config.ParseConfig()
-
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-var ebookDir = cfg.Settings.EbookDir
-
 // getTitlesFromPaths converts a slice of file paths into a slice of ePub titles.
 func getTitlesFromPaths(paths []string) []string {
 	var titles []string
@@ -46,18 +39,6 @@ func getTitlesFromPaths(paths []string) []string {
 	return titles
 }
 
-// resetNavigation resets the cursor and viewport after the choices list changes.
-func resetNavigation(m *Model) {
-	m.highlighted = 0
-	m.min = 0
-	if m.Height > 0 {
-		m.max = m.Height - 1
-	} else {
-		m.max = 0 // Or some default
-	}
-}
-
-// Sets the style
 type Styles struct {
 	cursor      lipgloss.Style
 	choices     lipgloss.Style
@@ -68,13 +49,12 @@ type Styles struct {
 	selectedtag    lipgloss.Style
 }
 
-// MAIN MODEL
 type Model struct {
-	// epub title to be displayed
 	title []string
 
 	choices     []string
-	cursor      string // Which item is pointed out
+	choicesinit []string
+	cursor      string
 	highlighted int
 
 	min int
@@ -83,19 +63,13 @@ type Model struct {
 	Height     int
 	AutoHeight bool
 
-	// Maps string tag to files (Tag -> []FilePath)
 	tags map[string][]string
 
-	// slice of available tagnames
-	tagnames []string
-	// Rendering the highlightedtag
-	highlightedtag string
-	// Which tag the pointer is pointing to
+	tagnames          []string
+	highlightedtag    string
 	highlightedtagpos int
-	// Which tags are selected
-	selectedtags []string
-	// Which tagname is selected
-	selectedtagNum int
+	selectedtags      []string
+	selectedtagNum    int
 
 	mintag int
 	maxtag int
@@ -104,10 +78,10 @@ type Model struct {
 }
 
 func initialModel() Model {
-	// cfg, err := config.ParseConfig()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	cfg, err := config.ParseConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	const (
 		marginBottom  = 5
@@ -115,15 +89,16 @@ func initialModel() Model {
 		paddingLeft   = 2
 	)
 
-	// ebookDir := cfg.Settings.EbookDir
-	// tags := xattr.GetXattrMapTagToFilePath()
+	ebookDir := cfg.Settings.EbookDir
 	tagsMap := xattr.GetXattrMapTagToFilePath()
 
 	tagnames := xattr.GetUniqueTags(tagsMap)
 
+	choicesinit := ListEpubs(ebookDir)
 	return Model{
 		title:       find(ebookDir, ".epub"),
-		choices:     ListEpubs(ebookDir),
+		choices:     choicesinit,
+		choicesinit: choicesinit,
 		cursor:      ">",
 		Height:      0,
 		highlighted: 0,
@@ -132,9 +107,8 @@ func initialModel() Model {
 		min:    0,
 		max:    0,
 
-		// Maps string tag to files
 		tags: tagsMap,
-		// slice of available tagnames
+
 		tagnames:          tagnames,
 		highlightedtagpos: 0,
 		mintag:            0,
@@ -188,13 +162,11 @@ func ListEpubs(directory string) []string {
 	return sr
 }
 
-// Runs on start up
-func (m Model) Init() tea.Cmd {
+func (m *Model) Init() tea.Cmd {
 	return nil
 }
 
-// UPDATE=handle incoming events
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.Height = 10
@@ -206,63 +178,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case "up", "k":
-			m.highlighted--
-			if m.highlighted < 0 {
-				m.highlighted = 0
-			}
-			if m.highlighted < m.min {
-				m.min--
-				m.max--
-			}
+			m.moveCursorUp()
 
 		case "down", "j":
-			m.highlighted++
-			if m.highlighted >= len(m.choices) {
-				m.highlighted = len(m.choices) - 1
-			}
-			if m.highlighted > m.max {
-				m.min++
-				m.max++
-			}
+			m.moveCursorDown()
 
 		case "l":
-			m.highlightedtagpos++
-			if m.highlightedtagpos >= len(m.tagnames) {
-				m.highlightedtagpos = len(m.tagnames) - 1
-			}
-			if m.highlightedtagpos > m.maxtag {
-				m.mintag++
-				m.maxtag++
-			}
+			m.moveTagSelectorRight()
 
 		case "h":
-			m.highlightedtagpos--
-			if m.highlightedtagpos < 0 {
-				m.highlightedtagpos = 0
-			}
-			if m.highlightedtagpos < m.mintag {
-				m.mintag--
-				m.maxtag--
-			}
+			m.moveTagSelectorLeft()
 
 		case " ":
-			m.selectedtagNum = m.highlightedtagpos
-
-			// It deletes it even if I'm not pointing to it
-			// go to this tagname, see if it's part of selectedtags, if yes, delete it
-			// even if this is true, appen still happens?
-			if len(m.selectedtags) > 0 && m.selectedtags[0] == m.tagnames[m.selectedtagNum] {
-				m.selectedtags = slices.DeleteFunc(m.selectedtags, func(s string) bool {
-					return m.tagnames[m.selectedtagNum] == s
-				})
-
-				m.choices = ListEpubs(ebookDir)
-			} else {
-				m.selectedtags = append(m.selectedtags, m.tagnames[m.selectedtagNum])
-
-				m.choices = xattr.MultipleTagsFilter(m.selectedtags)
-				m.choices = getTitlesFromPaths(m.choices)
-			}
+			m.selectOrDeselectTag()
 
 		}
 	}
@@ -270,18 +198,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View model
-func (m Model) View() string {
+func (m *Model) View() string {
 	var s strings.Builder
 
-	// Renders the UI for moving between tags
 	for i, tagchoice := range m.tagnames {
-		// Checks if selectedtags slice contains this tag, if yes render as selected
 		if slices.Contains(m.selectedtags, tagchoice) {
 			s.WriteString(m.Styles.selectedtag.Render(tagchoice) + " ")
 			continue
 		}
 		if m.highlightedtagpos == i {
-			// highlighted := fmt.Sprint(m.Styles.highlightedtag.Render(tagchoice))
 			s.WriteString(m.Styles.highlightedtag.Render(tagchoice) + " ")
 			continue
 		}
@@ -315,7 +240,8 @@ func main() {
 	}
 	defer f.Close()
 
-	p := tea.NewProgram(initialModel())
+	m := initialModel()
+	p := tea.NewProgram(&m)
 
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there has been an error %v", err)
