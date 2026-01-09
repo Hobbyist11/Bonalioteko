@@ -58,7 +58,7 @@ func (m *Model) selectOrDeselectTag() {
 			return m.tagnames[m.selectedtagNum] == s
 		})
 
-		m.choices = m.choicesinit
+		m.choices = m.initialChoices
 	} else {
 		m.selectedtags = append(m.selectedtags, m.tagnames[m.selectedtagNum])
 

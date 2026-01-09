@@ -20,17 +20,15 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// getTitlesFromPaths converts a slice of file paths into a slice of ePub titles.
 func getTitlesFromPaths(paths []string) []string {
 	var titles []string
 	if paths == nil {
-		return titles // Return empty slice, not nil
+		return titles 
 	}
 
 	for _, p := range paths {
 		metadata, err := epub.GetMetadataFromFile(p)
 		if err != nil || len(metadata.Title) == 0 {
-			// Fallback to the file name if metadata fails
 			titles = append(titles, filepath.Base(p))
 			continue
 		}
@@ -53,7 +51,7 @@ type Model struct {
 	title []string
 
 	choices     []string
-	choicesinit []string
+	initialChoices []string
 	cursor      string
 	highlighted int
 
@@ -98,7 +96,7 @@ func initialModel() Model {
 	return Model{
 		title:       find(ebookDir, ".epub"),
 		choices:     choicesinit,
-		choicesinit: choicesinit,
+		initialChoices: choicesinit,
 		cursor:      ">",
 		Height:      0,
 		highlighted: 0,
@@ -113,7 +111,6 @@ func initialModel() Model {
 		highlightedtagpos: 0,
 		mintag:            0,
 		maxtag:            0,
-		// Which tagname is selected
 		selectedtags:   nil,
 		selectedtagNum: 0,
 	}
@@ -162,11 +159,11 @@ func ListEpubs(directory string) []string {
 	return sr
 }
 
-func (m *Model) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.Height = 10
@@ -198,7 +195,7 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View model
-func (m *Model) View() string {
+func (m Model) View() string {
 	var s strings.Builder
 
 	for i, tagchoice := range m.tagnames {
