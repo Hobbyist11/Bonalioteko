@@ -148,15 +148,15 @@ func find(root, ext string) []string {
 }
 
 func ListEpubs(directory string) []string {
-	var sr []string
-	for _, sr2 := range find(directory, ".epub") {
-		sr2, err := epub.GetMetadataFromFile(sr2)
+	var titlesSlice []string
+	for _, titles := range find(directory, ".epub") {
+		titles, err := epub.GetMetadataFromFile(titles)
 		if err != nil {
 			errors.Cause(err)
 		}
-		sr = append(sr, sr2.Title[0])
+		titlesSlice = append(titlesSlice, titles.Title[0])
 	}
-	return sr
+	return titlesSlice
 }
 
 func (m Model) Init() tea.Cmd {
