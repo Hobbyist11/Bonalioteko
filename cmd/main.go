@@ -20,22 +20,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-func getTitlesFromPaths(paths []string) []string {
-	var titles []string
-	if paths == nil {
-		return titles 
-	}
 
-	for _, p := range paths {
-		metadata, err := epub.GetMetadataFromFile(p)
-		if err != nil || len(metadata.Title) == 0 {
-			titles = append(titles, filepath.Base(p))
-			continue
-		}
-		titles = append(titles, metadata.Title[0])
-	}
-	return titles
-}
 
 type Styles struct {
 	cursor      lipgloss.Style
@@ -92,7 +77,7 @@ func initialModel() Model {
 
 	tagnames := xattr.GetUniqueTags(tagsMap)
 
-	choicesinit := ListEpubs(ebookDir)
+	choicesinit := GetEpubTitles(ebookDir)
 	return Model{
 		title:       find(ebookDir, ".epub"),
 		choices:     choicesinit,
@@ -147,7 +132,7 @@ func find(root, ext string) []string {
 	return filename
 }
 
-func ListEpubs(directory string) []string {
+func GetEpubTitles(directory string) []string {
 	var titlesSlice []string
 	for _, titles := range find(directory, ".epub") {
 		titles, err := epub.GetMetadataFromFile(titles)

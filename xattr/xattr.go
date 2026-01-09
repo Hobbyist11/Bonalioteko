@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pirmd/epub"
 	"github.com/pkg/errors"
 	"github.com/pkg/xattr"
 )
@@ -17,7 +16,7 @@ var (
 )
 
 const (
-		prefix = "user.xdg.tags"
+	prefix = "user.xdg.tags"
 )
 
 func find(root, ext string) []string {
@@ -62,12 +61,12 @@ func GetTagsFromPath(filePath string) ([]string, error) {
 			// Changed to "" from untagged
 			return []string{"untagged"}, nil
 		}
-				return nil, err
+		return nil, err
 	}
 
 	tagsString := string(tagsBytes)
 
-	if tagsString == "" { 
+	if tagsString == "" {
 		return []string{"untagged"}, nil
 	}
 	tags := strings.Split(tagsString, ",")
@@ -116,7 +115,7 @@ func addTagAndFile(filePath string, tags []string, mymap map[string][]string) {
 
 func GetUniqueTags(tagFiles map[string][]string) []string {
 	uniqueTags := []string{}
-	seenTags := make(map[string]bool) 
+	seenTags := make(map[string]bool)
 
 	for tag := range tagFiles {
 		if !seenTags[tag] {
@@ -128,24 +127,7 @@ func GetUniqueTags(tagFiles map[string][]string) []string {
 	return uniqueTags
 }
 
-func GetTitlesSlice(tag string) []string {
-	filelist := find(ebookdir, ".epub")
-	var files []string
-	for _, actualname := range filelist {
-		value, err := xattr.Get(actualname, prefix)
-		if err != nil {
-			errors.New("got error")
-		}
-				if (string(value)) == tag {
-			actualname, err := epub.GetMetadataFromFile(actualname)
-			if err != nil {
-				errors.New("got an error")
-			}
-			files = append(files, actualname.Title...)
-		}
-	}
-	return files
-}
+
 
 func MultipleTagsFilter(selectedTags []string) []string {
 	init := GetXattrMapTagToFilePath()
@@ -154,7 +136,7 @@ func MultipleTagsFilter(selectedTags []string) []string {
 
 	for i := 1; i < len(selectedTags); i++ {
 		filesForNextTag := init[selectedTags[i]]
-		result = GetIntersection(result,filesForNextTag)
+		result = GetIntersection(result, filesForNextTag)
 	}
 
 	return result
@@ -170,8 +152,8 @@ func GetIntersection(setA []string, setB []string) []string {
 		hashsetA[filename] = true
 	}
 
-	for _, item := range setB{
-		if _, exists := hashsetA[item]; exists{
+	for _, item := range setB {
+		if _, exists := hashsetA[item]; exists {
 			intersection = append(intersection, item)
 		}
 	}
@@ -182,4 +164,3 @@ func GetIntersection(setA []string, setB []string) []string {
 func Addtag(file string, tagname []byte) {
 	xattr.Set(file, prefix, tagname)
 }
-

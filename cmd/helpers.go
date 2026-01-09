@@ -1,9 +1,12 @@
 package main
 
 import (
+	"path/filepath"
 	"slices"
 
 	"Bonalioteko/xattr"
+
+	"github.com/pirmd/epub"
 )
 
 func (m *Model) moveCursorUp() {
@@ -48,6 +51,23 @@ func (m *Model) moveTagSelectorLeft() {
 		m.mintag--
 		m.maxtag--
 	}
+}
+
+func getTitlesFromPaths(paths []string) []string {
+	var titles []string
+	if paths == nil {
+		return titles
+	}
+
+	for _, p := range paths {
+		metadata, err := epub.GetMetadataFromFile(p)
+		if err != nil || len(metadata.Title) == 0 {
+			titles = append(titles, filepath.Base(p))
+			continue
+		}
+		titles = append(titles, metadata.Title[0])
+	}
+	return titles
 }
 
 func (m *Model) selectOrDeselectTag() {
