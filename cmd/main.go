@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"Bonalioteko/config"
@@ -19,25 +20,24 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// Sets the style
+
+
 type Styles struct {
 	cursor      lipgloss.Style
 	choices     lipgloss.Style
 	highlighted lipgloss.Style
 
-	tags           lipgloss.Style
-	selectedtag    lipgloss.Style
+	tagnames       lipgloss.Style
 	highlightedtag lipgloss.Style
+	selectedtag    lipgloss.Style
 }
 
-// MAIN MODEL
 type Model struct {
-	// epub title to be displayed
 	title []string
 
-	// directory of the file
 	choices     []string
-	cursor      string // Which item is pointed out
+	initialChoices []string
+	cursor      string
 	highlighted int
 
 	min int
@@ -46,8 +46,16 @@ type Model struct {
 	Height     int
 	AutoHeight bool
 
-	tags        []string
-	selectedtag int
+	tags map[string][]string
+
+	tagnames          []string
+	highlightedtag    string
+	highlightedtagpos int
+	selectedtags      []string
+	selectedtagNum    int
+
+	mintag int
+	maxtag int
 
 	Styles Styles
 }
@@ -65,10 +73,15 @@ func initialModel() Model {
 	)
 
 	ebookDir := cfg.Settings.EbookDir
+	tagsMap := xattr.GetXattrMapTagToFilePath()
 
+	tagnames := xattr.GetUniqueTags(tagsMap)
+
+	choicesinit := GetEpubTitles(ebookDir)
 	return Model{
 		title:       find(ebookDir, ".epub"),
-		choices:     ListEpubs(ebookDir),
+		choices:     choicesinit,
+		initialChoices: choicesinit,
 		cursor:      ">",
 		Height:      0,
 		highlighted: 0,
@@ -77,8 +90,14 @@ func initialModel() Model {
 		min:    0,
 		max:    0,
 
-		tags:        xattr.GetXattr(),
-		selectedtag: 0,
+		tags: tagsMap,
+
+		tagnames:          tagnames,
+		highlightedtagpos: 0,
+		mintag:            0,
+		maxtag:            0,
+		selectedtags:   nil,
+		selectedtagNum: 0,
 	}
 }
 
@@ -93,8 +112,9 @@ func DefaultStylesWithRenderer(r *lipgloss.Renderer) Styles {
 		choices:     r.NewStyle(),
 		highlighted: r.NewStyle().Foreground(lipgloss.Color("212")).Bold(true),
 
-		tags:        r.NewStyle(),
-		selectedtag: r.NewStyle().Italic(true).Foreground(lipgloss.Color("21")),
+		tagnames:       r.NewStyle().Foreground(lipgloss.Color("5")),
+		selectedtag:    r.NewStyle().Italic(true).Foreground(lipgloss.Color("2")),
+		highlightedtag: r.NewStyle().Foreground(lipgloss.Color("12")),
 	}
 }
 
@@ -112,24 +132,22 @@ func find(root, ext string) []string {
 	return filename
 }
 
-func ListEpubs(directory string) []string {
-	var sr []string
-	for _, sr2 := range find(directory, ".epub") {
-		sr2, err := epub.GetMetadataFromFile(sr2)
+func GetEpubTitles(directory string) []string {
+	var titlesSlice []string
+	for _, titles := range find(directory, ".epub") {
+		titles, err := epub.GetMetadataFromFile(titles)
 		if err != nil {
 			errors.Cause(err)
 		}
-		sr = append(sr, sr2.Title...)
+		titlesSlice = append(titlesSlice, titles.Title[0])
 	}
-	return sr
+	return titlesSlice
 }
 
-// Runs on start up
 func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-// UPDATE=handle incoming events
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -142,53 +160,39 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case "up", "k":
-			m.highlighted--
-			if m.highlighted < 0 {
-				m.highlighted = 0
-			}
-			if m.highlighted < m.min {
-				m.min--
-				m.max--
-			}
+			m.moveCursorUp()
 
 		case "down", "j":
-			m.highlighted++
-			if m.highlighted >= len(m.choices) {
-				m.highlighted = len(m.choices) - 1
-			}
-			if m.highlighted > m.max {
-				m.min++
-				m.max++
-			}
+			m.moveCursorDown()
 
-		case "1":
-			m.selectedtag = 0
-			m.choices = xattr.Getfiles(m.tags[0])
-		case "2":
-			m.selectedtag = 1
-			m.choices = xattr.Getfiles(m.tags[1])
-		case "3":
-			m.selectedtag = 2
-			m.choices = xattr.Getfiles(m.tags[2])
+		case "l":
+			m.moveTagSelectorRight()
+
+		case "h":
+			m.moveTagSelectorLeft()
+
+		case " ":
+			m.selectOrDeselectTag()
 
 		}
-
 	}
 	return m, nil
 }
 
-// view
+// View model
 func (m Model) View() string {
 	var s strings.Builder
-  //TODO: Make the tags unique, i.e untagged only shows up onces
 
-	for i, tagname := range m.tags {
-
-		if m.selectedtag == i {
-			s.WriteString(m.Styles.selectedtag.Render(tagname))
+	for i, tagchoice := range m.tagnames {
+		if slices.Contains(m.selectedtags, tagchoice) {
+			s.WriteString(m.Styles.selectedtag.Render(tagchoice) + " ")
 			continue
 		}
-		s.WriteString(m.Styles.tags.Render(tagname) + " ")
+		if m.highlightedtagpos == i {
+			s.WriteString(m.Styles.highlightedtag.Render(tagchoice) + " ")
+			continue
+		}
+		s.WriteString(m.Styles.tagnames.Render(tagchoice) + " ")
 	}
 	s.WriteString("\n")
 
@@ -218,7 +222,8 @@ func main() {
 	}
 	defer f.Close()
 
-	p := tea.NewProgram(initialModel())
+	m := initialModel()
+	p := tea.NewProgram(&m)
 
 	if _, err := p.Run(); err != nil {
 		fmt.Printf("Alas, there has been an error %v", err)

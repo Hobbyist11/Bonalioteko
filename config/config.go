@@ -11,7 +11,7 @@ import (
 )
 
 var homedir, _ = os.UserHomeDir()
-var ebookdir = filepath.Join(homedir,"Downloads/Ebooks")
+var ebookdir = filepath.Join(homedir,"Downloads/Ebooks/")
 
 // AppDir is the name of the directory where the config file is stored.
 const AppDir = "Bonalioteko"

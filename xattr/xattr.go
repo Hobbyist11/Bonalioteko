@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pirmd/epub"
 	"github.com/pkg/errors"
 	"github.com/pkg/xattr"
 )
@@ -17,9 +16,6 @@ var (
 )
 
 const (
-	// ebookdir = "$HOME/Downloads/Ebooks/"
-	// ebookdir = "/var/home/dd/Downloads/Ebooks/"
-	// The extended attribute we want
 	prefix = "user.xdg.tags"
 )
 
@@ -37,41 +33,6 @@ func find(root, ext string) []string {
 	return filename
 }
 
-func ListEpubs(directory string) []string {
-	var sr []string
-	for _, sr2 := range find(directory, ".epub") {
-		sr2, err := epub.GetMetadataFromFile(sr2)
-		if err != nil {
-			errors.Cause(err)
-		}
-		sr = append(sr, sr2.Title...)
-	}
-	return sr
-}
-
-func GetXattr() []string {
-	// We get the epub files
-	filelist := find(ebookdir, ".epub")
-	// We will store the tags that we find here
-	var tags []string
-	// We loop over the epub files, actualname being the name of the files
-	for _, actualname := range filelist {
-		// We pass the actual name of the file to xattr.Get to get it's tags
-		value, err := xattr.Get(actualname, prefix)
-		if err != nil {
-			errors.New("got error")
-		}
-		if (string(value)) == "" {
-			tags = append(tags, "untagged")
-			continue
-		}
-		// We can append the actual name here to a filewith tags list
-		tags = append(tags, string(value))
-	}
-	return tags
-}
-
-// Get xattr map
 func GetXattrmap() map[string]string {
 	filelist := find(ebookdir, ".epub")
 	tags := make(map[string]string)
@@ -81,8 +42,8 @@ func GetXattrmap() map[string]string {
 		if err != nil {
 			errors.New("got error")
 		}
+
 		if (string(value)) == "" {
-			// append as "untagged"
 			tags[actualname] = "untagged"
 			continue
 		}
@@ -97,32 +58,32 @@ func GetTagsFromPath(filePath string) ([]string, error) {
 	if err != nil {
 		// If the attribute doesn't exist, treat it as no tags, not as an error.
 		if strings.Contains(err.Error(), "no such attribute") { // Check for attribute not found error
+			// Changed to "" from untagged
 			return []string{"untagged"}, nil
 		}
-		return []string{"untagged"}, err
+		return nil, err
 	}
 
-	// Assuming tags are comma-separated strings
 	tagsString := string(tagsBytes)
-	if tagsString == "" { // Handle empty tags attribute
+
+	if tagsString == "" {
 		return []string{"untagged"}, nil
 	}
 	tags := strings.Split(tagsString, ",")
 	return tags, nil
 }
 
-// Gets the list of files and their tags
-// TODO:
 func GetXattrMapFilePathToTag() map[string][]string {
 	filelist := find(ebookdir, ".epub")
 
-	// File path to tag
 	fileToTag := make(map[string][]string)
 
 	for _, fileNames := range filelist {
 		tags, _ := GetTagsFromPath(fileNames)
+		if tags == nil {
+			tags = append(tags, "untagged")
+		}
 		addFileAndTag(fileNames, tags, fileToTag)
-
 	}
 	return fileToTag
 }
@@ -131,10 +92,8 @@ func addFileAndTag(filePath string, tags []string, mymap map[string][]string) {
 	mymap[filePath] = tags
 }
 
-// Gets the tags and the files associated with it.
 func GetXattrMapTagToFilePath() map[string][]string {
 	filelist := find(ebookdir, ".epub")
-	// Tags to file path
 	tagToFiles := make(map[string][]string)
 	for _, fileNames := range filelist {
 		tags, _ := GetTagsFromPath(fileNames)
@@ -144,10 +103,8 @@ func GetXattrMapTagToFilePath() map[string][]string {
 	return tagToFiles
 }
 
-// Adds the found tag to the file
 func addTagAndFile(filePath string, tags []string, mymap map[string][]string) {
 	for _, tag := range tags {
-		// tags are the keys, filepath is the []value
 		mymap[tag] = append(mymap[tag], filePath)
 	}
 
@@ -156,9 +113,9 @@ func addTagAndFile(filePath string, tags []string, mymap map[string][]string) {
 	}
 }
 
-func getUniqueTags(tagFiles map[string][]string) []string {
+func GetUniqueTags(tagFiles map[string][]string) []string {
 	uniqueTags := []string{}
-	seenTags := make(map[string]bool) // Use a map to track seen tags
+	seenTags := make(map[string]bool)
 
 	for tag := range tagFiles {
 		if !seenTags[tag] {
@@ -170,41 +127,45 @@ func getUniqueTags(tagFiles map[string][]string) []string {
 	return uniqueTags
 }
 
-// Gets the file/s associated with the selectedTag
-func GetTagsMaps(selectedTag string, tagFiles map[string][]string) string {
-	if files, ok := tagFiles[selectedTag]; ok {
-		for _, file := range files {
-			return file
-		}
+
+
+func MultipleTagsFilter(selectedTags []string) []string {
+	init := GetXattrMapTagToFilePath()
+
+	result := init[selectedTags[0]]
+
+	for i := 1; i < len(selectedTags); i++ {
+		filesForNextTag := init[selectedTags[i]]
+		result = GetIntersection(result, filesForNextTag)
 	}
-	return "No files found"
+
+	return result
 }
 
-// Gets the files associated with a tag
-func Getfiles(tag string) []string {
-	filelist := find(ebookdir, ".epub")
-	// store files here
-	var files []string
-	// Loop over th epub files
-	for _, actualname := range filelist {
-		value, err := xattr.Get(actualname, prefix)
-		if err != nil {
-			errors.New("got error")
-		}
-		if (string(value)) == "" {
-			continue
-		}
-		if (string(value)) == tag {
-			actualname, err := epub.GetMetadataFromFile(actualname)
-			if err != nil {
-				errors.New("got an error")
-			}
-			files = append(files, actualname.Title...)
+func GetIntersection(setA []string, setB []string) []string {
+	var intersection []string
+	if len(setA) > len(setB) {
+		setB, setA = setA, setB
+	}
+	hashsetA := CreateHashSet(setA);
+
+	for _, item := range setB {
+		if _, exists := hashsetA[item]; exists {
+			intersection = append(intersection, item)
 		}
 	}
-	return files
+
+	return intersection
 }
 
-func Addtag(file string, tag string){
-  xattr.Set(file, prefix,tag)
+func CreateHashSet(set []string) map[string]bool{
+hashsetA := make(map[string]bool, len(set))
+	for _, filename := range set {
+		hashsetA[filename] = true
+	}
+	return  hashsetA;
+}
+
+func Addtag(file string, tagname []byte) {
+	xattr.Set(file, prefix, tagname)
 }
