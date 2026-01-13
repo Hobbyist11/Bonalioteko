@@ -1,12 +1,14 @@
 package main
 
 import (
+	"io/fs"
 	"path/filepath"
 	"slices"
 
 	"Bonalioteko/xattr"
 
 	"github.com/pirmd/epub"
+	"github.com/pkg/errors"
 )
 
 func (m *Model) moveCursorUp() {
@@ -73,7 +75,10 @@ func getTitlesFromPaths(paths []string) []string {
 func (m *Model) selectOrDeselectTag() {
 	m.selectedtagNum = m.highlightedtagpos
 
-	if len(m.selectedtags) > 0 && slices.Contains(m.selectedtags, m.tagnames[m.selectedtagNum]) {
+	hasSelectedTag := len(m.selectedtags) > 0
+	isSelected := slices.Contains(m.selectedtags, m.tagnames[m.selectedtagNum])
+
+	if hasSelectedTag && isSelected {
 		m.selectedtags = slices.DeleteFunc(m.selectedtags, func(s string) bool {
 			return m.tagnames[m.selectedtagNum] == s
 		})
@@ -85,4 +90,30 @@ func (m *Model) selectOrDeselectTag() {
 		m.choices = xattr.MultipleTagsFilter(m.selectedtags)
 		m.choices = getTitlesFromPaths(m.choices)
 	}
+}
+
+func find(root, ext string) []string {
+	var filename []string
+	filepath.WalkDir(root, func(s string, d fs.DirEntry, e error) error {
+		if e != nil {
+			return e
+		}
+		if filepath.Ext(d.Name()) == ext {
+			filename = append(filename, s)
+		}
+		return nil
+	})
+	return filename
+}
+
+func GetEpubTitles(directory string) []string {
+	var titlesSlice []string
+	for _, titles := range find(directory, ".epub") {
+		titles, err := epub.GetMetadataFromFile(titles)
+		if err != nil {
+			errors.Cause(err)
+		}
+		titlesSlice = append(titlesSlice, titles.Title[0])
+	}
+	return titlesSlice
 }

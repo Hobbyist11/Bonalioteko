@@ -147,10 +147,7 @@ func GetIntersection(setA []string, setB []string) []string {
 	if len(setA) > len(setB) {
 		setB, setA = setA, setB
 	}
-	hashsetA := make(map[string]bool, len(setA))
-	for _, filename := range setA {
-		hashsetA[filename] = true
-	}
+	hashsetA := CreateHashSet(setA);
 
 	for _, item := range setB {
 		if _, exists := hashsetA[item]; exists {
@@ -159,6 +156,14 @@ func GetIntersection(setA []string, setB []string) []string {
 	}
 
 	return intersection
+}
+
+func CreateHashSet(set []string) map[string]bool{
+hashsetA := make(map[string]bool, len(set))
+	for _, filename := range set {
+		hashsetA[filename] = true
+	}
+	return  hashsetA;
 }
 
 func Addtag(file string, tagname []byte) {
