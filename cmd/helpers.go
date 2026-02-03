@@ -33,7 +33,7 @@ func (m *Model) moveCursorDown() {
 	}
 }
 
-func (m *Model) moveTagSelectorRight() {
+	func (m Model) moveTagSelectorRight() {
 	m.highlightedtagpos++
 	if m.highlightedtagpos >= len(m.tagnames) {
 		m.highlightedtagpos = len(m.tagnames) - 1

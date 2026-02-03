@@ -2,123 +2,17 @@ package main
 
 import (
 	"fmt"
-	"io"
-	"io/fs"
 	"log"
 	"os"
-	"path/filepath"
 	"slices"
-	"sort"
 	"strings"
 
 	"Bonalioteko/config"
 	"Bonalioteko/xattr"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/sahilm/fuzzy"
-
-	"github.com/pirmd/epub"
-	"github.com/pkg/errors"
-
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
-
-type sessionState int
-
-const (
-	regularView sessionState = iota
-	searchView
-)
-
-type Item interface {
-	FilterValue() string
-}
-
-type ItemDelegate interface {
-	// Render renders the item's view.
-	Render(w io.Writer, m Model, index int, item Item)
-
-	// Height is the height of the list item.
-	Height() int
-
-	// Spacing is the size of the horizontal gap between list items in cells.
-	Spacing() int
-
-	// Update is the update loop for items. All messages in the list's update
-	// loop will pass through here except when the user is setting a filter.
-	// Use this method to perform item-level updates appropriate to this
-	// delegate.
-	Update(msg tea.Msg, m *Model) tea.Cmd
-}
-
-type filteredItem struct {
-	index   int
-	item    Item
-	matches []int
-}
-
-type filteredItems []filteredItem
-
-func (f filteredItems) items() []Item {
-	agg := make([]Item, len(f))
-	for i, v := range f {
-		agg[i] = v.item
-	}
-	return agg
-}
-
-// FilterMatchesMsg contains data about items matched during filtering. The
-// message should be routed to Update for processing.
-type FilterMatchesMsg []filteredItem
-
-// FilterFunc takes a term and a list of strings to search through
-// (defined by Item#FilterValue).
-// It should return a sorted list of ranks.
-type FilterFunc func(string, []string) []Rank
-
-// Rank defines a rank for a given item.
-type Rank struct {
-	// The index of the item in the original input.
-	Index int
-	// Indices of the actual word that were matched against the filter term.
-	MatchedIndexes []int
-}
-
-// DefaultFilter uses the sahilm/fuzzy to filter through the list.
-// This is set by default.
-func DefaultFilter(term string, targets []string) []Rank {
-	ranks := fuzzy.Find(term, targets)
-	sort.Stable(ranks)
-	result := make([]Rank, len(ranks))
-	for i, r := range ranks {
-		result[i] = Rank{
-			Index:          r.Index,
-			MatchedIndexes: r.MatchedIndexes,
-		}
-	}
-	return result
-}
-
-type statusMessageTimeoutMsg struct{}
-
-// FilterState describes the current filtering state on the model.
-type FilterState int
-
-// Possible filter states.
-const (
-	Unfiltered    FilterState = iota // no filter set
-	Filtering                        // user is actively setting a filter
-	FilterApplied                    // a filter is applied and user is not editing filter
-)
-
-// String returns a human-readable string of the current filter state.
-func (f FilterState) String() string {
-	return [...]string{
-		"unfiltered",
-		"filtering",
-		"filter applied",
-	}[f]
-}
 
 type Styles struct {
 	cursor      lipgloss.Style
@@ -129,26 +23,6 @@ type Styles struct {
 	highlightedtag lipgloss.Style
 	selectedtag    lipgloss.Style
 }
-
-type ModalScreenUI struct {
-	state   sessionState
-	regular tea.Model
-	search  tea.Model
-}
-
-func (m ModalScreenUI) Init() tea.Cmd {
-	return nil
-}
-
-// Update handle IO and commands
-// func (m ModalScreenUI) Update(msg tea.Msg) (tea.Model, tea.Cmd){
-// 	var cmd tea.Cmd
-// 	var cmds []tea.Cmd
-// 	switch msg := msg.(type){
-//
-// 	case
-// 	}
-// }
 
 type Model struct {
 	title []string
@@ -234,32 +108,6 @@ func DefaultStylesWithRenderer(r *lipgloss.Renderer) Styles {
 		selectedtag:    r.NewStyle().Italic(true).Foreground(lipgloss.Color("2")),
 		highlightedtag: r.NewStyle().Foreground(lipgloss.Color("12")),
 	}
-}
-
-func find(root, ext string) []string {
-	var filename []string
-	filepath.WalkDir(root, func(s string, d fs.DirEntry, e error) error {
-		if e != nil {
-			return e
-		}
-		if filepath.Ext(d.Name()) == ext {
-			filename = append(filename, s)
-		}
-		return nil
-	})
-	return filename
-}
-
-func GetEpubTitles(directory string) []string {
-	var titlesSlice []string
-	for _, titles := range find(directory, ".epub") {
-		titles, err := epub.GetMetadataFromFile(titles)
-		if err != nil {
-			errors.Cause(err)
-		}
-		titlesSlice = append(titlesSlice, titles.Title[0])
-	}
-	return titlesSlice
 }
 
 func (m Model) Init() tea.Cmd {
