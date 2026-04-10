@@ -129,3 +129,17 @@ func TestMultipleTagsFilter(t *testing.T) {
 		t.Error(cmp.Diff(want, got))
 	}
 }
+
+func TestMultipleTagsFilter_EmptySelection(t *testing.T) {
+	// Test with nil input
+	gotNil := xattr.MultipleTagsFilter(nil)
+	if gotNil != nil {
+		t.Errorf("MultipleTagsFilter(nil): expected nil, got %v", gotNil)
+	}
+
+	// Test with empty slice input
+	gotEmpty := xattr.MultipleTagsFilter([]string{})
+	if gotEmpty != nil {
+		t.Errorf("MultipleTagsFilter([]string{}): expected nil, got %v", gotEmpty)
+	}
+}
