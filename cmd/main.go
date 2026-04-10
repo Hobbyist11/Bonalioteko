@@ -19,6 +19,7 @@ func main() {
 		if err != nil {
 			os.Exit(1)
 		}
+		defer dump.Close()
 	}
 	f, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {
