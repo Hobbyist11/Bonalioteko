@@ -127,9 +127,10 @@ func GetUniqueTags(tagFiles map[string][]string) []string {
 	return uniqueTags
 }
 
-
-
 func MultipleTagsFilter(selectedTags []string) []string {
+	if len(selectedTags) == 0 {
+		return nil
+	}
 	init := GetXattrMapTagToFilePath()
 
 	result := init[selectedTags[0]]
@@ -147,7 +148,7 @@ func GetIntersection(setA []string, setB []string) []string {
 	if len(setA) > len(setB) {
 		setB, setA = setA, setB
 	}
-	hashsetA := CreateHashSet(setA);
+	hashsetA := CreateHashSet(setA)
 
 	for _, item := range setB {
 		if _, exists := hashsetA[item]; exists {
@@ -158,12 +159,12 @@ func GetIntersection(setA []string, setB []string) []string {
 	return intersection
 }
 
-func CreateHashSet(set []string) map[string]bool{
-hashsetA := make(map[string]bool, len(set))
+func CreateHashSet(set []string) map[string]bool {
+	hashsetA := make(map[string]bool, len(set))
 	for _, filename := range set {
 		hashsetA[filename] = true
 	}
-	return  hashsetA;
+	return hashsetA
 }
 
 func Addtag(file string, tagname []byte) {
