@@ -205,6 +205,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.filterModel.SetSize(30, 30)
 
 	case TagFilterMsg:
+		m.selectedTags = nil
 		for _, tag := range m.tagnames {
 			if tag.status {
 				m.selectedTags = append(m.selectedTags, tag)
