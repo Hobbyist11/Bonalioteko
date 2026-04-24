@@ -46,7 +46,6 @@ type TagEditModel struct {
 
 	textInput textinput.Model
 	err       error
-	quitting  bool
 }
 
 type ExitTagViewMsg struct {
