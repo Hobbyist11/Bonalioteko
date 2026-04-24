@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"slices"
 	"strings"
 
 	"Bonalioteko/xattr"
@@ -209,10 +208,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		for _, tag := range m.tagnames {
 			if tag.status {
 				m.selectedTags = append(m.selectedTags, tag)
-			} else {
-				m.selectedTags = slices.DeleteFunc(m.selectedTags, func(t *TagItem) bool {
-					return t == tag
-				})
 			}
 		}
 		if len(m.selectedTags) == 0 {
@@ -300,7 +295,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.filterModel, cmd = m.filterModel.Update(msg)
 
 			case "e":
-				if len(m.ebookPaths) == 0 || m.highlighted < 0 || m.highlighted >= len(m.ebookPaths){
+				if len(m.ebookPaths) == 0 || m.highlighted < 0 || m.highlighted >= len(m.ebookPaths) {
 					break
 				}
 				m.tagModel = NewTagEditModel(m.ebookPaths[m.highlighted], m.pathTags[m.ebookPaths[m.highlighted]])
