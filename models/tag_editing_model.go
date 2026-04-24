@@ -92,6 +92,10 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.max = m.Width - 1
 
 	case tea.KeyMsg:
+		if m.err != nil{
+			m.err = nil
+			return m, nil
+		}
 		if m.modelState == editTagView {
 			m.textInput, cmd = m.textInput.Update(msg)
 
@@ -108,7 +112,7 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.err = err
 					return m, nil
 				}
-				cmd = func() tea.Msg { return TagsUpdatedMsg{NewTags: m.Tags} }
+				cmd = func() tea.Msg { return TagsUpdatedMsg{NewTags: m.Tags,filename: m.fileName} }
 
 			case "esc":
 				m.textInput.Blur()
@@ -156,7 +160,7 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m TagEditModel) View() string {
 	var s string
 	if m.err != nil {
-		return fmt.Sprintf("error: %v\n\nPress any key to continue", m.err)
+		s += fmt.Sprintf("error: %v\n\nPress any key to continue", m.err)
 	}
 	switch m.modelState {
 	case defaultView:
