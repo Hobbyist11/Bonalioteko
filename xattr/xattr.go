@@ -2,8 +2,6 @@ package xattr
 
 import (
 	"io/fs"
-	"log"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -36,18 +34,15 @@ type TagManager struct {
 	Prefix string
 }
 
-func GetEbookDir() string {
+func GetEbookDir() (string, error) {
 	cfg, err := config.ParseConfig()
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
-	return cfg.Settings.EbookDir
+	return cfg.Settings.EbookDir, nil
 }
 
-var (
-	homedir, _ = os.UserHomeDir()
-	Ebookdir   = GetEbookDir()
-)
+var Ebookdir string
 
 func find(root, ext string) []string {
 	var filename []string
@@ -197,7 +192,7 @@ func GetUnion(setA []string, setB []string) []string {
 
 	hashsetA := CreateHashSet(setA)
 	for key := range hashsetA {
-if key != "" && key != " " && key != "untagged" {
+		if key != "" && key != " " && key != "untagged" {
 			continue
 		}
 
