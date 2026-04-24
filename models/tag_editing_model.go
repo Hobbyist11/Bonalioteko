@@ -92,7 +92,7 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.max = m.Width - 1
 
 	case tea.KeyMsg:
-		if m.err != nil{
+		if m.err != nil {
 			m.err = nil
 			return m, nil
 		}
@@ -112,7 +112,7 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.err = err
 					return m, nil
 				}
-				cmd = func() tea.Msg { return TagsUpdatedMsg{NewTags: m.Tags,filename: m.fileName} }
+				cmd = func() tea.Msg { return TagsUpdatedMsg{NewTags: m.Tags, filename: m.fileName} }
 
 			case "esc":
 				m.textInput.Blur()
@@ -135,7 +135,11 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 			case "d":
-				xattr.RemoveTag(m.fileName, m.Tags[m.cursor])
+				if err := xattr.RemoveTag(m.fileName, m.Tags[m.cursor]); err != nil {
+					m.err = err
+					return m, nil
+				}
+
 				var err error
 				m.Tags, err = xattr.GetTagsFromPath(m.fileName)
 				if err != nil {
