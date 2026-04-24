@@ -299,6 +299,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.filterModel, cmd = m.filterModel.Update(msg)
 
 			case "e":
+				if len(m.ebookPaths) == 0 || m.highlighted < 0 || m.highlighted >= len(m.ebookPaths){
+					break
+				}
 				m.tagModel = NewTagEditModel(m.ebookPaths[m.highlighted], m.pathTags[m.ebookPaths[m.highlighted]])
 
 				m.state = tagView
