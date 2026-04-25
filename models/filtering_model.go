@@ -32,7 +32,7 @@ func (i TagItem) Description() string { return "" }
 func (t TagItem) FilterValue() string { return t.Tag }
 func (t TagItem) isTag() bool         { return true }
 
-func GetTitles(items []*TagItem) []string {
+func GetTagStrings(items []*TagItem) []string {
 	s := make([]string, len(items))
 	for i, t := range items {
 		s[i] = t.Tag

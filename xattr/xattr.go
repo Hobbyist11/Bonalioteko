@@ -15,6 +15,16 @@ const (
 	prefix = "user.xdg.tags"
 )
 
+func GetEbookDir() (string, error) {
+	cfg, err := config.ParseConfig()
+	if err != nil {
+		return "", err
+	}
+	return cfg.Settings.EbookDir, nil
+}
+
+var Ebookdir, _ = GetEbookDir()
+
 // XattrClient defines the contract for extended attribute operations.
 type XattrClient interface {
 	Get(path, name string) ([]byte, error)
@@ -33,16 +43,6 @@ type TagManager struct {
 	Client XattrClient
 	Prefix string
 }
-
-func GetEbookDir() (string, error) {
-	cfg, err := config.ParseConfig()
-	if err != nil {
-		return "", err
-	}
-	return cfg.Settings.EbookDir, nil
-}
-
-var Ebookdir string
 
 func find(root, ext string) []string {
 	var filename []string
