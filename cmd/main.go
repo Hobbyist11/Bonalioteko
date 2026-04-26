@@ -9,8 +9,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-
-
 func main() {
 	var dump *os.File
 	if _, ok := os.LookupEnv("DEBUG"); ok {

@@ -143,10 +143,10 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Tags, err = xattr.GetTagsFromPath(m.fileName)
 				if err != nil {
 					m.err = err
-					return m, nil
+					return m, func() tea.Msg { return TagsUpdatedMsg{NewTags: m.Tags, filename: m.fileName} }
 				}
 				m.cursor = 0
-				return m, func() tea.Msg { return TagsUpdatedMsg{NewTags: m.Tags} }
+				return m, func() tea.Msg { return TagsUpdatedMsg{NewTags: m.Tags, filename: m.fileName} }
 
 			case "a":
 				m.modelState = editTagView
