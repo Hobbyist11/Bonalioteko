@@ -108,22 +108,7 @@ func InitialModel(dump *os.File) Model {
 	tagStrings := xattr.GetUniqueTags(tagsMap)
 	choicesinit := GetEpubTitles(xattr.Ebookdir)
 
-	var sharedTags []*TagItem
-	for _, t := range tagStrings {
-		sharedTags = append(sharedTags, &TagItem{Tag: t, status: false})
-	}
-
-	combinedList := initItems(choicesinit, tagStrings)
-	var listItems []list.Item
-	for _, tagPtr := range sharedTags {
-		listItems = append(listItems, tagPtr)
-	}
-
-	for _, tagPtr := range combinedList {
-		if v, ok := tagPtr.(*TitleItem); ok {
-			listItems = append(listItems, v)
-		}
-	}
+	listItems, sharedTags := GetFilterListItems(tagStrings, choicesinit)
 
 	return Model{
 		dump:        dump,

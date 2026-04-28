@@ -9,6 +9,7 @@ import (
 	"Bonalioteko/xattr"
 
 	"github.com/pirmd/epub"
+	"github.com/charmbracelet/bubbles/list"
 )
 
 func (m *Model) moveCursorUp() {
@@ -127,4 +128,24 @@ func GetEpubTitles(directory string) []string {
 		titlesSlice = append(titlesSlice, metadata.Title[0])
 	}
 	return titlesSlice
+}
+
+func GetFilterListItems (tagStrings []string, choicesinit []string) ([]list.Item,sharedTags []*TagItem) {
+var sharedTags []*TagItem
+	for _, t := range tagStrings {
+		sharedTags = append(sharedTags, &TagItem{Tag: t, status: false})
+	}
+
+	combinedList := initItems(choicesinit, tagStrings)
+	var listItems []list.Item
+	for _, tagPtr := range sharedTags {
+		listItems = append(listItems, tagPtr)
+	}
+
+	for _, tagPtr := range combinedList {
+		if v, ok := tagPtr.(*TitleItem); ok {
+			listItems = append(listItems, v)
+		}
+	}
+	return listItems,sharedTags
 }
