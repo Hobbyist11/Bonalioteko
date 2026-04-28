@@ -256,3 +256,23 @@ func RemoveTag(filepath string, tagToRemove string) error {
 
 	return xattr.Set(filepath, prefix, []byte(strings.Join(newTags, ",")))
 }
+
+// func RemoveTag(filepath string, tagToRemove string) error {
+// 	tagbyte, err := xattr.Get(filepath, prefix)
+// 	if err != nil {
+// 		fmt.Printf("err: %v\n", err)
+// 	}
+//
+// 	tags := strings.SplitSeq(string(tagbyte), ",")
+//
+// 	xattr.Remove(filepath, prefix)
+//
+// 	var newTags []string
+// 	for tag := range tags {
+// 		if tag != tagToRemove {
+// 			newTags = append(newTags, tag)
+// 		}
+// 	}
+//
+// 	return xattr.Set(filepath, prefix, []byte(strings.Join(newTags, ",")))
+// }

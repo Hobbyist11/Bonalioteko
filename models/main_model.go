@@ -46,7 +46,6 @@ type Model struct {
 
 	tags map[string][]string
 
-	highlightedtag    string
 	highlightedtagpos int
 
 	tagnames       []*TagItem
@@ -104,12 +103,6 @@ func initItems(choices []string, tags []string) []ResultItem {
 }
 
 func InitialModel(dump *os.File) Model {
-	const (
-		marginBottom  = 5
-		fileSizewidth = 7
-		paddingLeft   = 2
-	)
-
 	tagsMap := xattr.GetXattrMapTagToFilePath()
 
 	tagStrings := xattr.GetUniqueTags(tagsMap)
