@@ -72,7 +72,7 @@ type Styles struct {
 	HelpStyle      lipgloss.Style
 }
 
-type styles struct {
+type delegateStyles struct {
 	cursor    lipgloss.Style
 	greyed    lipgloss.Style
 	item      lipgloss.Style
@@ -81,8 +81,8 @@ type styles struct {
 	HelpStyle lipgloss.Style
 }
 
-func NewStyles() styles {
-	var s styles
+func NewStyles() delegateStyles {
+	var s delegateStyles
 	s.greyed = lipgloss.NewStyle().Foreground(lipgloss.Color("#3C3C3C"))
 	s.cursor = lipgloss.NewStyle().Foreground(lipgloss.Color("202"))
 	s.item = lipgloss.NewStyle().Foreground(lipgloss.Color("02"))
