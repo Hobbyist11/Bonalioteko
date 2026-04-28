@@ -313,7 +313,7 @@ func (m Model) View() string {
 			if tagPtr.status {
 				s.WriteString(m.Styles.selectedtag.Render(tagPtr.Tag) + " ")
 			} else if m.highlightedtagpos == i {
-				s.WriteString(m.Styles.highlightedtag.Render(tagPtr.Tag) + " ")
+				s.WriteString(m.Styles.cursor.Render(m.cursor) + m.Styles.highlightedtag.Render(tagPtr.Tag) + " ")
 			} else {
 				s.WriteString(m.Styles.tagnames.Render(tagPtr.Tag) + " ")
 			}

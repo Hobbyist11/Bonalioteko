@@ -100,7 +100,11 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			switch msg.String() {
 			case "enter":
-				if err := xattr.Addtag(m.fileName, []byte(m.textInput.Value())); err != nil {
+				newTag := strings.TrimSpace(m.textInput.Value())
+				if newTag == "" {
+					return m, nil
+				}
+				if err := xattr.Addtag(m.fileName, []byte(newTag)); err != nil {
 					m.err = err
 					return m, nil
 				}
