@@ -192,7 +192,7 @@ func GetUnion(setA []string, setB []string) []string {
 
 	hashsetA := CreateHashSet(setA)
 	for key := range hashsetA {
-		if key != "" && key != " " && key != "untagged" {
+		if key == "" || key == " " || key == "untagged" {
 			continue
 		}
 
@@ -202,9 +202,11 @@ func GetUnion(setA []string, setB []string) []string {
 	for key := range hashsetB {
 		if _, exists := hashsetA[key]; exists {
 			continue
-		} else if key != "" && key != " " && key != "untagged" {
-			result = append(result, key)
 		}
+		if key == "" || key == " " || key == "untagged" {
+			continue
+		}
+		result = append(result, key)
 	}
 
 	return result
