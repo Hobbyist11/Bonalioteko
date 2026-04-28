@@ -167,10 +167,10 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m TagEditModel) View() string {
-	var s string
 	if m.err != nil {
-		s += fmt.Sprintf("error: %v\n\nPress any key to continue", m.err)
+		return fmt.Sprintf("error: %v\n\nPress any key to continue", m.err)
 	}
+	var s string
 	switch m.modelState {
 	case defaultView:
 		s = lipgloss.Place(50, 50, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Top, m.headerView(), m.helpView()))
