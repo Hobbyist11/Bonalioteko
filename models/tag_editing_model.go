@@ -134,6 +134,9 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 			case "d":
+				if len(m.Tags) == 0 || m.cursor < 0 || m.cursor >= len(m.Tags) {
+					break
+				}
 				if err := xattr.RemoveTag(m.fileName, m.Tags[m.cursor]); err != nil {
 					m.err = err
 					return m, nil
@@ -143,7 +146,6 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Tags, err = xattr.GetTagsFromPath(m.fileName)
 				if err != nil {
 					m.err = err
-					return m, func() tea.Msg { return TagsUpdatedMsg{NewTags: m.Tags, filename: m.fileName} }
 				}
 				m.cursor = 0
 				return m, func() tea.Msg { return TagsUpdatedMsg{NewTags: m.Tags, filename: m.fileName} }
