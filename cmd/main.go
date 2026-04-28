@@ -2,6 +2,7 @@ package main
 
 import (
 	"Bonalioteko/models"
+	"Bonalioteko/xattr"
 	"fmt"
 	"log"
 	"os"
@@ -25,7 +26,11 @@ func main() {
 	}
 	defer f.Close()
 
-	m := models.InitialModel(dump)
+	Ebookdir, err := xattr.InitEbookdir()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to initialize ebook directory: %v", err))
+	}
+	m := models.InitialModel(dump, Ebookdir)
 	p := tea.NewProgram(&m, tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {

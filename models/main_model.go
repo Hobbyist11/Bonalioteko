@@ -24,7 +24,8 @@ const (
 type modelState int
 
 type Model struct {
-	dump io.Writer
+	dump    io.Writer
+	rootdir string
 
 	state modelState
 
@@ -102,20 +103,22 @@ func initItems(choices []string, tags []string) []ResultItem {
 	return items
 }
 
-func InitialModel(dump *os.File) Model {
-	tagsMap := xattr.GetXattrMapTagToFilePath()
+func InitialModel(dump *os.File, rootdir string) Model {
+
+	tagsMap := xattr.GetXattrMapTagToFilePath(rootdir)
 
 	tagStrings := xattr.GetUniqueTags(tagsMap)
-	choicesinit := GetEpubTitles(xattr.Ebookdir)
+	choicesinit := GetEpubTitles(rootdir)
 
 	listItems, sharedTags := GetFilterListItems(tagStrings, choicesinit)
 
 	return Model{
 		dump:        dump,
 		state:       normalView,
+		rootdir:     rootdir,
 		filterModel: list.New(listItems, Bonadelegate{styles: NewStyles()}, 80, 40),
 
-		ebookPaths:     find(xattr.Ebookdir, ".epub"),
+		ebookPaths:     find(rootdir, ".epub"),
 		choices:        choicesinit,
 		initialChoices: choicesinit,
 		cursor:         ">",
@@ -136,7 +139,7 @@ func InitialModel(dump *os.File) Model {
 		selectedTags:      nil,
 		selectedtagNum:    0,
 
-		pathTags: xattr.GetXattrMapFilePathToTag(),
+		pathTags: xattr.GetXattrMapFilePathToTag(rootdir),
 	}
 }
 
@@ -190,10 +193,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		if len(m.selectedTags) == 0 {
 			m.choices = m.initialChoices
-			m.ebookPaths = find(xattr.Ebookdir, ".epub")
+			m.ebookPaths = find(m.rootdir, ".epub")
 		} else {
 			tagStrings := GetTagStrings(m.selectedTags)
-			m.ebookPaths = xattr.MultipleTagsFilter(tagStrings)
+			m.ebookPaths = xattr.MultipleTagsFilter(tagStrings, m.tags)
 			m.choices = getTitlesFromPaths(m.ebookPaths)
 		}
 
@@ -203,7 +206,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case TagsUpdatedMsg:
 		m.pathTags[msg.filename] = msg.NewTags
 
-		allTagsMap := xattr.GetXattrMapTagToFilePath()
+		allTagsMap := xattr.GetXattrMapTagToFilePath(m.rootdir)
 		m.tags = allTagsMap
 		uniqueTags := xattr.GetUniqueTags(allTagsMap)
 

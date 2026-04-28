@@ -18,12 +18,18 @@ const (
 func GetEbookDir() (string, error) {
 	cfg, err := config.ParseConfig()
 	if err != nil {
-		return "", err
+		return "Got error", err
 	}
 	return cfg.Settings.EbookDir, nil
 }
 
-var Ebookdir, _ = GetEbookDir()
+func InitEbookdir() (string, error) {
+	ebookdir, err := GetEbookDir()
+	if err != nil {
+		return "Got error", err
+	}
+	return ebookdir, nil
+}
 
 // XattrClient defines the contract for extended attribute operations.
 type XattrClient interface {
@@ -58,8 +64,8 @@ func find(root, ext string) []string {
 	return filename
 }
 
-func GetXattrmap() map[string]string {
-	filelist := find(Ebookdir, ".epub")
+func GetXattrmap(directory string) map[string]string {
+	filelist := find(directory, ".epub")
 	tags := make(map[string]string)
 
 	for _, actualname := range filelist {
@@ -98,8 +104,8 @@ func GetTagsFromPath(filePath string) ([]string, error) {
 	return tags, nil
 }
 
-func GetXattrMapFilePathToTag() map[string][]string {
-	filelist := find(Ebookdir, ".epub")
+func GetXattrMapFilePathToTag(directory string) map[string][]string {
+	filelist := find(directory, ".epub")
 
 	fileToTag := make(map[string][]string)
 
@@ -117,8 +123,8 @@ func addFileAndTag(filePath string, tags []string, mymap map[string][]string) {
 	mymap[filePath] = tags
 }
 
-func GetXattrMapTagToFilePath() map[string][]string {
-	filelist := find(Ebookdir, ".epub")
+func GetXattrMapTagToFilePath(directory string) map[string][]string {
+	filelist := find(directory, ".epub")
 	tagToFiles := make(map[string][]string)
 	for _, fileNames := range filelist {
 		tags, _ := GetTagsFromPath(fileNames)
@@ -152,16 +158,15 @@ func GetUniqueTags(tagFiles map[string][]string) []string {
 	return uniqueTags
 }
 
-func MultipleTagsFilter(selectedTags []string) []string {
+func MultipleTagsFilter(selectedTags []string, tags map[string][]string) []string {
 	if len(selectedTags) == 0 {
 		return nil
 	}
-	init := GetXattrMapTagToFilePath()
 
-	result := init[selectedTags[0]]
+	result := tags[selectedTags[0]]
 
 	for i := 1; i < len(selectedTags); i++ {
-		filesForNextTag := init[selectedTags[i]]
+		filesForNextTag := tags[selectedTags[i]]
 		result = GetIntersection(result, filesForNextTag)
 	}
 

@@ -93,10 +93,10 @@ func (m *Model) selectOrDeselectTag() {
 
 	if len(m.selectedTags) == 0 {
 		m.choices = m.initialChoices
-		m.ebookPaths = find(xattr.Ebookdir, ".epub")
+		m.ebookPaths = find(m.rootdir, ".epub")
 	} else {
 		tagStrings := GetTagStrings(m.selectedTags)
-		m.ebookPaths = xattr.MultipleTagsFilter(tagStrings)
+		m.ebookPaths = xattr.MultipleTagsFilter(tagStrings, m.tags)
 		m.choices = getTitlesFromPaths(m.ebookPaths)
 		m.highlighted = 0
 	}
