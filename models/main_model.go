@@ -231,7 +231,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.choices = getTitlesFromPaths(m.ebookPaths)
 		m.selectedTags = nil
-
+		updatedFilterItems, updatedSharedTags := GetFilterListItems(xattr.GetUniqueTags(m.tags), m.choices)
+		m.filterModel.SetItems(updatedFilterItems)
+		m.tagnames = updatedSharedTags
 		return m, func() tea.Msg { return TagFilterMsg{} }
 
 	case tea.KeyMsg:
