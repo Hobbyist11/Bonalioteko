@@ -6,8 +6,11 @@ import (
 	"os"
 	"strings"
 
+	keymaps "Bonalioteko/Keymaps"
 	"Bonalioteko/xattr"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/davecgh/go-spew/spew"
@@ -59,6 +62,9 @@ type Model struct {
 	Styles Styles
 
 	pathTags map[string][]string
+
+	KeyMap keymaps.KeyMap
+	Help   help.Model
 }
 
 type Styles struct {
@@ -72,7 +78,7 @@ type Styles struct {
 	HelpStyle      lipgloss.Style
 }
 
-type styles struct {
+type delegateStyles struct {
 	cursor    lipgloss.Style
 	greyed    lipgloss.Style
 	item      lipgloss.Style
@@ -81,8 +87,8 @@ type styles struct {
 	HelpStyle lipgloss.Style
 }
 
-func NewStyles() styles {
-	var s styles
+func NewStyles() delegateStyles {
+	var s delegateStyles
 	s.greyed = lipgloss.NewStyle().Foreground(lipgloss.Color("#3C3C3C"))
 	s.cursor = lipgloss.NewStyle().Foreground(lipgloss.Color("202"))
 	s.item = lipgloss.NewStyle().Foreground(lipgloss.Color("02"))
@@ -104,7 +110,6 @@ func initItems(choices []string, tags []string) []ResultItem {
 }
 
 func InitialModel(dump *os.File, rootdir string) Model {
-
 	tagsMap := xattr.GetXattrMapTagToFilePath(rootdir)
 
 	tagStrings := xattr.GetUniqueTags(tagsMap)
@@ -140,6 +145,8 @@ func InitialModel(dump *os.File, rootdir string) Model {
 		selectedtagNum:    0,
 
 		pathTags: xattr.GetXattrMapFilePathToTag(rootdir),
+		KeyMap:   keymaps.DefaultKeyMap(),
+		Help:     help.New(),
 	}
 }
 
@@ -256,28 +263,28 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmds = append(cmds, cmd)
 
 		default:
-			switch msg.String() {
+			switch {
 
-			case "up", "k":
+			case key.Matches(msg, m.KeyMap.CursorUp):
 				m.moveCursorUp()
 
-			case "down", "j":
+			case key.Matches(msg, m.KeyMap.CursorDown):
 				m.moveCursorDown()
 
-			case "l":
+			case key.Matches(msg, m.KeyMap.CursorRight):
 				m.moveTagSelectorRight()
 
-			case "h":
+			case key.Matches(msg, m.KeyMap.CursorLeft):
 				m.moveTagSelectorLeft()
 
-			case " ":
+			case key.Matches(msg, m.KeyMap.SpaceBar):
 				m.selectOrDeselectTag()
 
-			case "/":
+			case key.Matches(msg, m.KeyMap.Filter):
 				m.state = filterView
 				m.filterModel, cmd = m.filterModel.Update(msg)
 
-			case "e":
+			case key.Matches(msg, m.KeyMap.Edit):
 				if len(m.ebookPaths) == 0 || m.highlighted < 0 || m.highlighted >= len(m.ebookPaths) {
 					break
 				}
@@ -285,7 +292,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				m.state = tagView
 
-			case "esc", "ctrl+c":
+			case key.Matches(msg, m.KeyMap.Quit):
 				return m, tea.Quit
 			}
 		}
@@ -341,6 +348,44 @@ func (m Model) View() string {
 			s.WriteRune('\n')
 
 		}
-		return s.String()
+		return lipgloss.Place(50, 50, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Top, s.String(), m.helpView()))
 	}
+}
+
+func (m Model) helpView() string {
+	return m.Styles.HelpStyle.Render(m.Help.View(m))
+}
+
+func (m Model) FullHelp() [][]key.Binding {
+	kb := [][]key.Binding{{
+		m.KeyMap.CursorLeft,
+		m.KeyMap.CursorRight,
+		m.KeyMap.CursorUp,
+		m.KeyMap.CursorDown,
+		m.KeyMap.SpaceBar,
+		m.KeyMap.Edit,
+	}}
+
+	return append(kb,
+		[]key.Binding{
+			m.KeyMap.Quit,
+			m.KeyMap.CloseFullHelp,
+		})
+}
+
+// ShortHelp returns bindings to show in the abbreviated help view. It's part
+// of the help.KeyMap interface.
+func (m Model) ShortHelp() []key.Binding {
+	kb := []key.Binding{
+		m.KeyMap.CursorLeft,
+		m.KeyMap.CursorRight,
+		m.KeyMap.CursorUp,
+		m.KeyMap.CursorDown,
+		m.KeyMap.Filter,
+	}
+
+	return append(kb,
+		m.KeyMap.Quit,
+		m.KeyMap.ShowFullHelp,
+	)
 }

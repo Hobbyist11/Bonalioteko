@@ -45,7 +45,7 @@ type (
 		TagItem *TagItem
 	}
 	Bonadelegate struct {
-		styles styles
+		styles delegateStyles
 	}
 )
 

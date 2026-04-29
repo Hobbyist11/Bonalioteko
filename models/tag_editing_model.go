@@ -15,18 +15,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type KeyMap interface {
-	// ShortHelp returns a slice of bindings to be displayed in the short
-	// version of the help. The help bubble will render help in the order in
-	// which the help items are returned here.
-	ShortHelp() []key.Binding
-
-	// FullHelp returns an extended group of help items, grouped by columns.
-	// The help bubble will render the help in the order in which the help
-	// items are returned here.
-	FullHelp() [][]key.Binding
-}
-
 const (
 	defaultView modelState = iota
 	editTagView
@@ -214,15 +202,7 @@ func (m TagEditModel) FullHelp() [][]key.Binding {
 		m.KeyMap.CursorLeft,
 	}}
 
-	listLevelBindings := []key.Binding{
-		// m.KeyMap.Filter,
-		// m.KeyMap.ClearFilter,
-		// m.KeyMap.AcceptWhileFiltering,
-		// m.KeyMap.CancelWhileFiltering,
-	}
-
 	return append(kb,
-		listLevelBindings,
 		[]key.Binding{
 			m.KeyMap.Quit,
 			m.KeyMap.CloseFullHelp,

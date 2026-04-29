@@ -2,12 +2,12 @@ package xattr
 
 import (
 	"io/fs"
+	"log"
 	"path/filepath"
 	"strings"
 
 	"Bonalioteko/config"
 
-	"github.com/pkg/errors"
 	"github.com/pkg/xattr"
 )
 
@@ -18,7 +18,7 @@ const (
 func GetEbookDir() (string, error) {
 	cfg, err := config.ParseConfig()
 	if err != nil {
-		return "Got error", err
+		return "", err
 	}
 	return cfg.Settings.EbookDir, nil
 }
@@ -26,7 +26,7 @@ func GetEbookDir() (string, error) {
 func InitEbookdir() (string, error) {
 	ebookdir, err := GetEbookDir()
 	if err != nil {
-		return "Got error", err
+		return "", err
 	}
 	return ebookdir, nil
 }
@@ -71,7 +71,7 @@ func GetXattrmap(directory string) map[string]string {
 	for _, actualname := range filelist {
 		value, err := xattr.Get(actualname, prefix)
 		if err != nil {
-			errors.New("got error")
+			log.Printf("error:%v", err)
 		}
 
 		if (string(value)) == "" {
