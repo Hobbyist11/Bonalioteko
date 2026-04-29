@@ -1,8 +1,11 @@
 package models
 
 import (
+	"fmt"
 	"io/fs"
 	"log"
+	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
 
@@ -147,4 +150,45 @@ func GetFilterListItems(tagStrings []string, choicesinit []string) (listItems []
 		}
 	}
 	return listItems, sharedTags
+}
+
+// OpenFile opens a file using the default application associated with its file type
+func OpenFile(path string) error {
+	cleaned := filepath.Clean(path)
+
+	abs, err := filepath.Abs(cleaned)
+	if err != nil {
+		return fmt.Errorf("abs %q: %w", cleaned, err)
+	}
+
+	info, err := os.Stat(abs)
+	if err != nil {
+		return fmt.Errorf("stat: %q %w", abs, err)
+	}
+	if !info.Mode().IsRegular() {
+		return fmt.Errorf("not a regular file: %q", abs)
+	}
+
+	_, inFlatpak := os.LookupEnv("FLATPAK_ID")
+
+	if inFlatpak {
+		// Reach out to the host system to run xdg-open
+		if _, err := exec.LookPath("flatpak-spawn --host xdg-open"); err == nil {
+			return fmt.Errorf("xdg-open not found: %w", err)
+		}
+		cmd := exec.Command("flatpak-spawn", "--host", "xdg-open", path)
+		if err := cmd.Start(); err != nil {
+			return fmt.Errorf("starting xdg-open for %q: %w", path, err)
+		}
+	} else {
+		if _, err := exec.LookPath("xdg-open"); err == nil {
+			return fmt.Errorf("xdg-open not found: %w", err)
+		}
+		cmd := exec.Command("xdg-open", abs)
+		if err := cmd.Start(); err != nil {
+			return fmt.Errorf("starting xdg-open for %q: %w", abs, err)
+		}
+	}
+
+	return nil
 }
