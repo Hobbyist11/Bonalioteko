@@ -364,7 +364,6 @@ func (m Model) FullHelp() [][]key.Binding {
 		m.KeyMap.CursorDown,
 		m.KeyMap.SpaceBar,
 		m.KeyMap.Edit,
-		m.KeyMap.Enter,
 	}}
 
 	return append(kb,

@@ -12,9 +12,9 @@ type KeyMap struct {
 	CursorDown  key.Binding
 	Filter      key.Binding
 	ClearFilter key.Binding
-	Edit key.Binding
-	Enter key.Binding
-	SpaceBar key.Binding
+	Edit        key.Binding
+	Enter       key.Binding
+	SpaceBar    key.Binding
 
 	// Keybindings used when setting a filter.
 	CancelWhileFiltering key.Binding
@@ -34,7 +34,14 @@ type KeyMap struct {
 // DefaultKeyMap returns a default set of keybindings.
 func DefaultKeyMap() KeyMap {
 	return KeyMap{
-		// Browsing.
+		ShowFullHelp: key.NewBinding(
+			key.WithKeys("?"),
+			key.WithHelp("?", "more"),
+		),
+		CloseFullHelp: key.NewBinding(
+			key.WithKeys("?"),
+			key.WithHelp("?", "less"),
+		),
 		CursorRight: key.NewBinding(
 			key.WithKeys("right", "l"),
 			key.WithHelp("->", "l"),
@@ -55,18 +62,18 @@ func DefaultKeyMap() KeyMap {
 			key.WithKeys("/"),
 			key.WithHelp("/", "filter"),
 		),
-Edit: key.NewBinding(
+		Edit: key.NewBinding(
 			key.WithKeys("e"),
 			key.WithHelp("e", "edit"),
 		),
 		Enter: key.NewBinding(
 			key.WithKeys("enter"),
-		key.WithHelp("enter", "open"),
-			),
-SpaceBar: key.NewBinding(
+			key.WithHelp("enter", "open"),
+		),
+		SpaceBar: key.NewBinding(
 			key.WithKeys(" "),
-		key.WithHelp("SpaceBar", "selectTag"),
-			),
+			key.WithHelp("SpaceBar", "selectTag"),
+		),
 		CancelWhileFiltering: key.NewBinding(
 			key.WithKeys("esc"),
 			key.WithHelp("esc", "cancel"),
