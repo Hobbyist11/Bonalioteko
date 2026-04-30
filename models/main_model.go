@@ -28,6 +28,7 @@ type modelState int
 
 type Model struct {
 	dump    io.Writer
+	err     error
 	rootdir string
 
 	state modelState
@@ -247,6 +248,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, func() tea.Msg { return TagFilterMsg{} }
 
 	case tea.KeyMsg:
+		if m.err != nil {
+			m.err = nil
+			return m, nil
+		}
 		switch state := m.state; state {
 		case filterView:
 			m.filterModel, cmd = m.filterModel.Update(msg)
@@ -292,6 +297,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				m.state = tagView
 
+			case key.Matches(msg, m.KeyMap.Enter):
+				if len(m.ebookPaths) == 0 || m.highlighted < 0 || m.highlighted >= len(m.ebookPaths){
+					break
+				}
+				err := OpenFile(m.ebookPaths[m.highlighted])
+				if err != nil {
+					m.err = err
+				}
 			case key.Matches(msg, m.KeyMap.Quit):
 				return m, tea.Quit
 			}
@@ -308,6 +321,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // View model
 func (m Model) View() string {
+	if m.err != nil {
+		return fmt.Sprintf("error: %v\n\nPress any key to continue", m.err)
+	}
 	switch m.state {
 
 	case filterView:

@@ -1,10 +1,15 @@
 package models
 
 import (
+	"context"
+	"fmt"
 	"io/fs"
 	"log"
+	"os"
+	"os/exec"
 	"path/filepath"
 	"slices"
+	"time"
 
 	"Bonalioteko/xattr"
 
@@ -147,4 +152,52 @@ func GetFilterListItems(tagStrings []string, choicesinit []string) (listItems []
 		}
 	}
 	return listItems, sharedTags
+}
+
+// OpenFile opens a file using the default application associated with its file type
+func OpenFile(path string) error {
+	cleaned := filepath.Clean(path)
+
+	abs, err := filepath.Abs(cleaned)
+	if err != nil {
+		return fmt.Errorf("abs %q: %w", cleaned, err)
+	}
+
+	info, err := os.Stat(abs)
+	if err != nil {
+		return fmt.Errorf("stat: %q %w", abs, err)
+	}
+	if !info.Mode().IsRegular() {
+		return fmt.Errorf("not a regular file: %q", abs)
+	}
+
+	_, inFlatpak := os.LookupEnv("FLATPAK_ID")
+
+	if inFlatpak {
+		// Reach out to the host system to run xdg-open
+		if _, err := exec.LookPath("flatpak-spawn"); err != nil {
+			return fmt.Errorf("flatpak-spawn not found: %w", err)
+		}
+		if _, err := exec.LookPath("xdg-open"); err != nil {
+			return fmt.Errorf("xdg-open not found: %w", err)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		cmd := exec.CommandContext(ctx, "flatpak-spawn", "--host", "xdg-open", abs)
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("starting xdg-open for %q: %w", abs, err)
+		}
+	} else {
+		if _, err := exec.LookPath("xdg-open"); err != nil {
+			return fmt.Errorf("xdg-open not found: %w", err)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		cmd := exec.CommandContext(ctx,"xdg-open", abs)
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("starting xdg-open for %q: %w", abs, err)
+		}
+	}
+
+	return nil
 }
