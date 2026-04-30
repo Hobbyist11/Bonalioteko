@@ -298,6 +298,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.state = tagView
 
 			case key.Matches(msg, m.KeyMap.Enter):
+				if len(m.ebookPaths) == 0 || m.highlighted < 0 || m.highlighted >= len(m.ebookPaths){
+					break
+				}
 				err := OpenFile(m.ebookPaths[m.highlighted])
 				if err != nil {
 					m.err = err
