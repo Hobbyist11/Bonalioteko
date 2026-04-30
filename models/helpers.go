@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"fmt"
 	"io/fs"
 	"log"
@@ -8,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"slices"
+	"time"
 
 	"Bonalioteko/xattr"
 
@@ -176,7 +178,12 @@ func OpenFile(path string) error {
 		if _, err := exec.LookPath("flatpak-spawn"); err != nil {
 			return fmt.Errorf("flatpak-spawn not found: %w", err)
 		}
-		cmd := exec.Command("flatpak-spawn", "--host", "xdg-open", abs)
+		if _, err := exec.LookPath("xdg-open"); err != nil {
+			return fmt.Errorf("xdg-open not found: %w", err)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		cmd := exec.CommandContext(ctx, "flatpak-spawn", "--host", "xdg-open", abs)
 		if err := cmd.Start(); err != nil {
 			return fmt.Errorf("starting xdg-open for %q: %w", abs, err)
 		}
@@ -184,7 +191,9 @@ func OpenFile(path string) error {
 		if _, err := exec.LookPath("xdg-open"); err != nil {
 			return fmt.Errorf("xdg-open not found: %w", err)
 		}
-		cmd := exec.Command("xdg-open", abs)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		cmd := exec.CommandContext(ctx,"xdg-open", abs)
 		if err := cmd.Start(); err != nil {
 			return fmt.Errorf("starting xdg-open for %q: %w", abs, err)
 		}
