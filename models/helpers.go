@@ -184,7 +184,7 @@ func OpenFile(path string) error {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		cmd := exec.CommandContext(ctx, "flatpak-spawn", "--host", "xdg-open", abs)
-		if err := cmd.Start(); err != nil {
+		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("starting xdg-open for %q: %w", abs, err)
 		}
 	} else {
@@ -194,7 +194,7 @@ func OpenFile(path string) error {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		cmd := exec.CommandContext(ctx,"xdg-open", abs)
-		if err := cmd.Start(); err != nil {
+		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("starting xdg-open for %q: %w", abs, err)
 		}
 	}
