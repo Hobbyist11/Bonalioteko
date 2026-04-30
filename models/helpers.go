@@ -173,15 +173,15 @@ func OpenFile(path string) error {
 
 	if inFlatpak {
 		// Reach out to the host system to run xdg-open
-		if _, err := exec.LookPath("flatpak-spawn --host xdg-open"); err == nil {
-			return fmt.Errorf("xdg-open not found: %w", err)
+		if _, err := exec.LookPath("flatpak-spawn"); err != nil {
+			return fmt.Errorf("flatpak-spawn not found: %w", err)
 		}
-		cmd := exec.Command("flatpak-spawn", "--host", "xdg-open", path)
+		cmd := exec.Command("flatpak-spawn", "--host", "xdg-open", abs)
 		if err := cmd.Start(); err != nil {
-			return fmt.Errorf("starting xdg-open for %q: %w", path, err)
+			return fmt.Errorf("starting xdg-open for %q: %w", abs, err)
 		}
 	} else {
-		if _, err := exec.LookPath("xdg-open"); err == nil {
+		if _, err := exec.LookPath("xdg-open"); err != nil {
 			return fmt.Errorf("xdg-open not found: %w", err)
 		}
 		cmd := exec.Command("xdg-open", abs)
