@@ -85,6 +85,7 @@ func (m *Model) selectOrDeselectTag() {
 	isSelected := slices.Contains(m.selectedTags, targetTag)
 
 	if isSelected {
+		// I think this will break if I have to filter tags and change the contents.
 		m.selectedTags = slices.DeleteFunc(m.selectedTags, func(t *TagItem) bool {
 			return t == targetTag // Compare memory addresses
 		})
@@ -104,6 +105,24 @@ func (m *Model) selectOrDeselectTag() {
 		tagStrings := GetTagStrings(m.selectedTags)
 		m.ebookPaths = xattr.MultipleTagsFilter(tagStrings, m.tags)
 		m.choices = getTitlesFromPaths(m.ebookPaths)
+		
+
+
+		myMap := make(map[string][]string)
+		for _,path := range m.ebookPaths{
+			myMap[path],_ = xattr.GetTagsFromPath(path)
+		}
+
+		var tagsMap []string
+		for _, filepath := range m.ebookPaths {
+			tags, _ := xattr.GetTagsFromPath(filepath)
+			tagsMap = append(tagsMap, tags...)
+		}
+
+
+		var newItems []list.Item
+		newItems, m.tagnames = GetFilterListItems(tagsMap, m.choices)
+		m.filterModel.SetItems(newItems)
 		m.highlighted = 0
 	}
 }
@@ -193,7 +212,7 @@ func OpenFile(path string) error {
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		cmd := exec.CommandContext(ctx,"xdg-open", abs)
+		cmd := exec.CommandContext(ctx, "xdg-open", abs)
 		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("starting xdg-open for %q: %w", abs, err)
 		}
