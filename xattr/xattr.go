@@ -128,13 +128,13 @@ func GetXattrMapTagToFilePath(directory string) map[string][]string {
 	tagToFiles := make(map[string][]string)
 	for _, fileNames := range filelist {
 		tags, _ := GetTagsFromPath(fileNames)
-		addTagAndFile(fileNames, tags, tagToFiles)
+		AddTagAndFile(fileNames, tags, tagToFiles)
 
 	}
 	return tagToFiles
 }
 
-func addTagAndFile(filePath string, tags []string, mymap map[string][]string) {
+func AddTagAndFile(filePath string, tags []string, mymap map[string][]string) {
 	for _, tag := range tags {
 		mymap[tag] = append(mymap[tag], filePath)
 	}

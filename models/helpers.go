@@ -79,19 +79,19 @@ func getTitlesFromPaths(paths []string) []string {
 }
 
 func (m *Model) selectOrDeselectTag() {
-	// m.tagnames changes len when I add or remove a tag
 	targetTag := m.tagnames[m.highlightedtagpos]
 
-	isSelected := slices.Contains(m.selectedTags, targetTag)
+	isSelected := slices.ContainsFunc(m.selectedTags, func(t *TagItem) bool {
+		return t.Tag == targetTag.Tag
+	})
 
 	if isSelected {
 		m.selectedTags = slices.DeleteFunc(m.selectedTags, func(t *TagItem) bool {
-			return t == targetTag // Compare memory addresses
+			return t.Tag == targetTag.Tag // Compare tag names instead of memory addresses
 		})
 
 		targetTag.status = false
 	} else {
-		// Add to selected list
 		m.selectedTags = append(m.selectedTags, targetTag)
 		targetTag.status = true
 	}
@@ -100,12 +100,61 @@ func (m *Model) selectOrDeselectTag() {
 		m.choices = m.initialChoices
 		m.ebookPaths = find(m.rootdir, ".epub")
 		m.highlighted = 0
-	} else {
-		tagStrings := GetTagStrings(m.selectedTags)
-		m.ebookPaths = xattr.MultipleTagsFilter(tagStrings, m.tags)
-		m.choices = getTitlesFromPaths(m.ebookPaths)
+		NewTagsToPath := SetTagToPathMap(m.ebookPaths)
+		uniqueTags := xattr.GetUniqueTags(NewTagsToPath)
+
+		var newItems []list.Item
+		newItems, m.tagnames = GetFilterListItems(uniqueTags, m.choices)
+		m.filterModel.SetItems(newItems)
 		m.highlighted = 0
+		m.highlightedtagpos = 0
+
+	} else {
+		selectedTagString := GetTagStrings(m.selectedTags)
+		m.ebookPaths = xattr.MultipleTagsFilter(selectedTagString, m.tags)
+		m.choices = getTitlesFromPaths(m.ebookPaths)
+		NewTagsToPath := SetTagToPathMap(m.ebookPaths)
+		uniqueTags := xattr.GetUniqueTags(NewTagsToPath)
+
+		var newTagItems []*TagItem
+		for _, tagName := range uniqueTags {
+			status := false
+
+			for _, oldTag := range m.tagnames {
+				if oldTag.Tag == tagName {
+					status = oldTag.status
+					break
+				}
+			}
+
+			newTagItems = append(newTagItems, &TagItem{
+				Tag:    tagName,
+				status: status,
+			})
+		}
+
+		m.tagnames = newTagItems
+
+		var newItems []list.Item
+		for _, tagPtr := range m.tagnames {
+			newItems = append(newItems, tagPtr)
+		}
+		for _, choice := range m.choices {
+			newItems = append(newItems, &TitleItem{Book: choice})
+		}
+		m.filterModel.SetItems(newItems)
+		m.highlighted = 0
+		m.highlightedtagpos = 0
 	}
+}
+
+func SetTagToPathMap(paths []string) map[string][]string {
+	result := make(map[string][]string)
+	for _, path := range paths {
+		tags, _ := xattr.GetTagsFromPath(path)
+		xattr.AddTagAndFile(path, tags, result)
+	}
+	return result
 }
 
 func find(root, ext string) []string {
@@ -193,7 +242,7 @@ func OpenFile(path string) error {
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		cmd := exec.CommandContext(ctx,"xdg-open", abs)
+		cmd := exec.CommandContext(ctx, "xdg-open", abs)
 		if err := cmd.Run(); err != nil {
 			return fmt.Errorf("starting xdg-open for %q: %w", abs, err)
 		}
