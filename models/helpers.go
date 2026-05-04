@@ -136,7 +136,12 @@ func (m *Model) selectOrDeselectTag() {
 		m.tagnames = newTagItems
 
 		var newItems []list.Item
-		newItems, _ = GetFilterListItems(uniqueTags, m.choices)
+		for _, tagPtr := range m.tagnames {
+			newItems = append(newItems, tagPtr)
+		}
+		for _, choice := range m.choices {
+			newItems = append(newItems, &TitleItem{Book: choice})
+		}
 		m.filterModel.SetItems(newItems)
 		m.highlighted = 0
 		m.highlightedtagpos = 0
