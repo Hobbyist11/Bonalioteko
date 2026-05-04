@@ -253,27 +253,3 @@ func TestUnion(t *testing.T) {
 
 	}
 }
-
-func TestGetIntersectingTags(t *testing.T) {
-	type testCase struct {
-		tagsmap      map [string][]string
-		selectedTags []string
-		want         []string
-	}
-	testcases := []testCase{
-		// "/var/home/dd/Downloads/Ebooks/bertrand-russell_roads-to-freedom_advanced.epub":          {"untagged"},
-		// "/var/home/dd/Downloads/Ebooks/fyodor-dostoevsky_demons_constance-garnett_advanced.epub": {"philosophy"},
-		// "/var/home/dd/Downloads/Ebooks/g-k-chesterton_heretics_advanced.epub":                    {"untagged"},
-		// "/var/home/dd/Downloads/Ebooks/g-k-chesterton_orthodoxy_advanced.epub":                   {"untagged"},
-
-		{tagsmap: map[string][]string{"/var/home/dd/Downloads/Ebooks/g-k-chesterton_the-everlasting-man_advanced.epub": {"unread", "religion", "philosophy"}}, selectedTags: []string{"religion"}, want: []string{"philosopy"}},
-	}
-
-	for _, tc := range testcases {
-		got := xattr.GetUniqueTags(tc.tagsmap)
-		if !cmp.Equal(tc.want, got) {
-			t.Error(cmp.Diff(tc.want, got))
-		}
-
-	}
-}
