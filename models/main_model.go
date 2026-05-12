@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	keymaps "Bonalioteko/Keymaps"
+	"Bonalioteko/config"
 	"Bonalioteko/xattr"
 
 	"github.com/charmbracelet/bubbles/help"
@@ -39,6 +40,7 @@ type Model struct {
 	ebookPaths []string
 
 	choices        []string
+	recentFiles    []string
 	initialChoices []string
 	cursor         string
 	highlighted    int
@@ -118,6 +120,8 @@ func InitialModel(dump *os.File, rootdir string) Model {
 
 	listItems, sharedTags := GetFilterListItems(tagStrings, choicesinit)
 
+	recentFiles, err := config.GetRecentsSlice()
+
 	return Model{
 		dump:        dump,
 		state:       normalView,
@@ -126,6 +130,7 @@ func InitialModel(dump *os.File, rootdir string) Model {
 
 		ebookPaths:     find(rootdir, ".epub"),
 		choices:        choicesinit,
+		recentFiles:    recentFiles,
 		initialChoices: choicesinit,
 		cursor:         ">",
 		Height:         0,
@@ -148,6 +153,7 @@ func InitialModel(dump *os.File, rootdir string) Model {
 		pathTags: xattr.GetXattrMapFilePathToTag(rootdir),
 		KeyMap:   keymaps.DefaultKeyMap(),
 		Help:     help.New(),
+		err:      err,
 	}
 }
 
@@ -298,13 +304,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.state = tagView
 
 			case key.Matches(msg, m.KeyMap.Enter):
-				if len(m.ebookPaths) == 0 || m.highlighted < 0 || m.highlighted >= len(m.ebookPaths){
+				if len(m.ebookPaths) == 0 || m.highlighted < 0 || m.highlighted >= len(m.ebookPaths) {
 					break
 				}
 				err := OpenFile(m.ebookPaths[m.highlighted])
 				if err != nil {
 					m.err = err
 				}
+				// Add opened file to Recents slice. If it already exists, append
+				config.AddToRecentFileList(m.ebookPaths[m.highlighted])
+
 			case key.Matches(msg, m.KeyMap.Quit):
 				return m, tea.Quit
 			}
