@@ -23,6 +23,7 @@ const (
 	filterView modelState = iota
 	normalView
 	tagView
+	recentView
 )
 
 type modelState int
@@ -177,12 +178,6 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-type SpecialString string
-
-func (s SpecialString) FilterValue() string {
-	return ""
-}
-
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
@@ -335,6 +330,9 @@ func (m Model) View() string {
 	}
 	switch m.state {
 
+	case recentView:
+		return m.RecentsView()
+
 	case filterView:
 		return m.filterModel.View()
 
@@ -379,6 +377,25 @@ func (m Model) View() string {
 
 func (m Model) helpView() string {
 	return m.Styles.HelpStyle.Render(m.Help.View(m))
+}
+
+func (m Model) RecentsView() string {
+	var s string
+
+	for i, items := range m.choices {
+		if i < m.min || i > m.max {
+			continue
+		}
+		if m.highlighted == i {
+			highlighted := fmt.Sprint(m.Styles.highlighted.Render(items))
+			s = m.Styles.cursor.Render(m.cursor) + m.Styles.highlighted.Render(highlighted)
+			continue
+		}
+
+		 s= m.Styles.choices.Render(items)
+
+	}
+	return s
 }
 
 func (m Model) FullHelp() [][]key.Binding {
