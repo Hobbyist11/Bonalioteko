@@ -15,6 +15,7 @@ type KeyMap struct {
 	Edit        key.Binding
 	Enter       key.Binding
 	SpaceBar    key.Binding
+	Tab         key.Binding
 
 	// Keybindings used when setting a filter.
 	CancelWhileFiltering key.Binding
@@ -34,13 +35,18 @@ type KeyMap struct {
 // DefaultKeyMap returns a default set of keybindings.
 func DefaultKeyMap() KeyMap {
 	return KeyMap{
+		Tab: key.NewBinding(
+			key.WithKeys("tab"),
+			key.WithHelp("tab","See recents"),
+		),
+
 		ShowFullHelp: key.NewBinding(
 			key.WithKeys("?"),
 			key.WithHelp("?", "more"),
 		),
 		CloseFullHelp: key.NewBinding(
-			key.WithKeys("?"),
-			key.WithHelp("?", "less"),
+			key.WithKeys("esc"),
+			key.WithHelp("x", "less"),
 		),
 		CursorRight: key.NewBinding(
 			key.WithKeys("right", "l"),

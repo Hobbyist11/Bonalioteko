@@ -37,11 +37,11 @@ type Model struct {
 
 	filterModel list.Model
 	tagModel    tea.Model
+	recentModel RecentModel
 
 	ebookPaths []string
 
 	choices        []string
-	recentFiles    []string
 	initialChoices []string
 	cursor         string
 	highlighted    int
@@ -121,17 +121,15 @@ func InitialModel(dump *os.File, rootdir string) Model {
 
 	listItems, sharedTags := GetFilterListItems(tagStrings, choicesinit)
 
-	recentFiles, err := config.GetRecentsSlice()
-
 	return Model{
 		dump:        dump,
 		state:       normalView,
 		rootdir:     rootdir,
 		filterModel: list.New(listItems, Bonadelegate{styles: NewStyles()}, 80, 40),
+		recentModel: NewRecentsModel(),
 
 		ebookPaths:     find(rootdir, ".epub"),
 		choices:        choicesinit,
-		recentFiles:    recentFiles,
 		initialChoices: choicesinit,
 		cursor:         ">",
 		Height:         0,
@@ -154,7 +152,7 @@ func InitialModel(dump *os.File, rootdir string) Model {
 		pathTags: xattr.GetXattrMapFilePathToTag(rootdir),
 		KeyMap:   keymaps.DefaultKeyMap(),
 		Help:     help.New(),
-		err:      err,
+		// err:      err,
 	}
 }
 
@@ -268,8 +266,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.tagModel, cmd = m.tagModel.Update(msg)
 			cmds = append(cmds, cmd)
 
+		case recentView:
+			m.recentModel, cmd = m.recentModel.Update(msg)
+			cmds = append(cmds, cmd)
 		default:
 			switch {
+			case key.Matches(msg, m.KeyMap.Tab):
+				if m.state != recentView {
+					m.state = recentView
+
+				} else {
+					m.state = normalView
+				}
 
 			case key.Matches(msg, m.KeyMap.CursorUp):
 				m.moveCursorUp()
@@ -331,7 +339,7 @@ func (m Model) View() string {
 	switch m.state {
 
 	case recentView:
-		return m.RecentsView()
+		return m.recentModel.View()
 
 	case filterView:
 		return m.filterModel.View()
@@ -379,25 +387,6 @@ func (m Model) helpView() string {
 	return m.Styles.HelpStyle.Render(m.Help.View(m))
 }
 
-func (m Model) RecentsView() string {
-	var s string
-
-	for i, items := range m.choices {
-		if i < m.min || i > m.max {
-			continue
-		}
-		if m.highlighted == i {
-			highlighted := fmt.Sprint(m.Styles.highlighted.Render(items))
-			s = m.Styles.cursor.Render(m.cursor) + m.Styles.highlighted.Render(highlighted)
-			continue
-		}
-
-		 s= m.Styles.choices.Render(items)
-
-	}
-	return s
-}
-
 func (m Model) FullHelp() [][]key.Binding {
 	kb := [][]key.Binding{{
 		m.KeyMap.CursorLeft,
@@ -405,6 +394,7 @@ func (m Model) FullHelp() [][]key.Binding {
 		m.KeyMap.CursorUp,
 		m.KeyMap.CursorDown,
 		m.KeyMap.SpaceBar,
+		m.KeyMap.Filter,
 		m.KeyMap.Edit,
 	}}
 
@@ -424,6 +414,7 @@ func (m Model) ShortHelp() []key.Binding {
 		m.KeyMap.CursorUp,
 		m.KeyMap.CursorDown,
 		m.KeyMap.Filter,
+		m.KeyMap.Tab,
 	}
 
 	return append(kb,
