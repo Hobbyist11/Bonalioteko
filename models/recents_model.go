@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/pirmd/epub"
 )
 
 type RecentModel struct {
@@ -82,24 +83,28 @@ func (m RecentModel) View() string {
 	var s strings.Builder
 
 	for i, items := range m.choices {
+		metadata, err := epub.GetMetadataFromFile(items)
+		if err != nil {
+			return fmt.Sprintf("error: %v\n\nPress any key to continue", m.err)
+		}
 		// if i < m.min || i > m.max {
 		// 	continue
 		// }
 
 		if m.highlighted == i {
-			highlighted := fmt.Sprint(m.Styles.highlighted.Render(items))
+			highlighted := fmt.Sprint(m.Styles.highlighted.Render(metadata.Title[0]))
 			s.WriteString(m.Styles.cursor.Render(m.cursor) + m.Styles.highlighted.Render(highlighted))
 			s.WriteRune('\n')
 			continue
 		}
 
-		s.WriteString(m.Styles.choices.Render(items))
+		s.WriteString(m.Styles.choices.Render(metadata.Title[0]))
 
 		s.WriteRune('\n')
 
 	}
 
-	return lipgloss.Place(50, 50, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Top, s.String(), m.helpView()))
+	return lipgloss.Place(50, 50, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Top, "Recent eBooks:\n", s.String(), m.helpView()))
 }
 
 func (m RecentModel) RecentsView() string {
