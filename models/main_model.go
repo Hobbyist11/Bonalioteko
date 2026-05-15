@@ -274,7 +274,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, m.KeyMap.Tab):
 				if m.state != recentView {
 					m.state = recentView
-
 				} else {
 					m.state = normalView
 				}
@@ -314,8 +313,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if err != nil {
 					m.err = err
 				}
-				// Add opened file to Recents slice. If it already exists, append
 				config.AddToRecentFileList(m.ebookPaths[m.highlighted])
+				m.recentModel.choices, err = config.GetRecentsSlice()
+				if err != nil {
+					m.err = err
+				}
 
 			case key.Matches(msg, m.KeyMap.Quit):
 				return m, tea.Quit

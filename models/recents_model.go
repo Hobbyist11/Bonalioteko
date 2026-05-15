@@ -59,15 +59,18 @@ func (m RecentModel) Update(msg tea.Msg) (RecentModel, tea.Cmd) {
 			m.moveCursorUp()
 
 		case key.Matches(msg, m.KeyMap.Enter):
-			// if len(m.ebookPaths) == 0 || m.highlighted < 0 || m.highlighted >= len(m.ebookPaths) {
-			// 	break
-			// }
-			// err := OpenFile(m.ebookPaths[m.highlighted])
-			// if err != nil {
-			// 	m.err = err
-			// }
-			// // Add opened file to Recents slice. If it already exists, append
-			// config.AddToRecentFileList(m.ebookPaths[m.highlighted])
+			if len(m.choices) == 0 || m.highlighted < 0 || m.highlighted >= len(m.choices) {
+				break
+			}
+			err := OpenFile(m.choices[m.highlighted])
+			if err != nil {
+				m.err = err
+			}
+			config.AddToRecentFileList(m.choices[m.highlighted])
+			m.choices, err = config.GetRecentsSlice()
+			if err != nil {
+				m.err = err
+			}
 
 		case key.Matches(msg, m.KeyMap.Quit):
 			cmd = func() tea.Msg { return ExitTagViewMsg{"Exit"} }
@@ -137,7 +140,6 @@ func NewRecentsModel() RecentModel {
 
 		width:   10,
 		choices: choices,
-		// recentFiles []string
 
 		min: 0,
 		max: 0,
