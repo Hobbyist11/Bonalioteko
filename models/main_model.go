@@ -187,7 +187,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
-		m.Height = 100
+		m.Height = msg.Height
 		m.max = m.Height - 1
 		m.filterModel.SetSize(30, 30)
 

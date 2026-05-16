@@ -44,7 +44,8 @@ func (m RecentModel) Update(msg tea.Msg) (RecentModel, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.height = 50
+		m.height = msg.Height
+		m.width = msg.Width
 		m.max = m.height - 1
 
 	case tea.KeyMsg:
