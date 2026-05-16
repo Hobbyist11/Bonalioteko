@@ -312,12 +312,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				err := OpenFile(m.ebookPaths[m.highlighted])
 				if err != nil {
 					m.err = err
+					break
 				}
-				config.AddToRecentFileList(m.ebookPaths[m.highlighted])
-				m.recentModel.choices, err = config.GetRecentsSlice()
+				if err := config.AddToRecentFileList(m.ebookPaths[m.highlighted]); err != nil{
+				m.err = err
+				break
+			}
+				choices, err := config.GetRecentsSlice()
 				if err != nil {
 					m.err = err
 				}
+				m.recentModel.choices = choices
 
 			case key.Matches(msg, m.KeyMap.Quit):
 				return m, tea.Quit

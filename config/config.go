@@ -127,11 +127,16 @@ func (parser ConfigParser) createRecentFileIfMissing(configFilePath string) erro
 func AddToRecentFileList(newFile string) error {
 	var recent []string
 	configFilePath, err := os.UserConfigDir()
-	fullPath := filepath.Join(configFilePath, AppDir, RecentFilesName)
 	if err != nil {
 		return err
 	}
 
+	dir := filepath.Join(configFilePath, AppDir)
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+		return err
+	}
+
+	fullPath := filepath.Join(dir, RecentFilesName)
 	data, err := os.ReadFile(fullPath)
 	if err == nil {
 		_ = json.Unmarshal(data, &recent)
@@ -155,7 +160,7 @@ func AddToRecentFileList(newFile string) error {
 	return os.WriteFile(fullPath, newData, 0o644)
 }
 
-// getRecentsFileOrCreate is missing returns the config file path or creates the config file if it doesn't exist.
+// getRecentsFileOrCreate  returns the config file path or creates the config file if it doesn't exist.
 func (parser ConfigParser) getRecentsFileOrCreate() (*string, error) {
 	var err error
 	configDir := os.Getenv("XDG_CONFIG_HOME")
@@ -163,20 +168,20 @@ func (parser ConfigParser) getRecentsFileOrCreate() (*string, error) {
 	if configDir == "" {
 		configDir, err = os.UserConfigDir()
 		if err != nil {
-			return nil, configError{parser: parser, configDir: RecentFilesName, err: err}
+			return nil, configError{parser: parser, configDir: configDir, err: err}
 		}
 	}
 
 	prsConfigDir := filepath.Join(configDir, AppDir)
 	err = os.MkdirAll(prsConfigDir, os.ModePerm)
 	if err != nil {
-		return nil, configError{parser: parser, configDir: RecentFilesName, err: err}
+		return nil, configError{parser: parser, configDir: prsConfigDir, err: err}
 	}
 
 	configFilePath := filepath.Join(prsConfigDir, RecentFilesName)
 	err = parser.createRecentFileIfMissing(configFilePath)
 	if err != nil {
-		return nil, configError{parser: parser, configDir: RecentFilesName, err: err}
+		return nil, configError{parser: parser, configDir: configFilePath, err: err}
 	}
 
 	return &configFilePath, nil

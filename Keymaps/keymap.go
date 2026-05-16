@@ -37,7 +37,7 @@ func DefaultKeyMap() KeyMap {
 	return KeyMap{
 		Tab: key.NewBinding(
 			key.WithKeys("tab"),
-			key.WithHelp("tab","See recents"),
+			key.WithHelp("tab", "See recents"),
 		),
 
 		ShowFullHelp: key.NewBinding(
@@ -45,8 +45,8 @@ func DefaultKeyMap() KeyMap {
 			key.WithHelp("?", "more"),
 		),
 		CloseFullHelp: key.NewBinding(
-			key.WithKeys("esc"),
-			key.WithHelp("x", "less"),
+			key.WithKeys("?"),
+			key.WithHelp("?", "less"),
 		),
 		CursorRight: key.NewBinding(
 			key.WithKeys("right", "l"),
