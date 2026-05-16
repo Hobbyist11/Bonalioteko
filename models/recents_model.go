@@ -74,6 +74,10 @@ func (m RecentModel) Update(msg tea.Msg) (RecentModel, tea.Cmd) {
 
 		case key.Matches(msg, m.KeyMap.Quit):
 			cmd = func() tea.Msg { return ExitTagViewMsg{"Exit"} }
+
+		case key.Matches(msg, m.KeyMap.Tab):
+			cmd = func() tea.Msg { return ExitTagViewMsg{"Exit"} }
+
 		}
 	}
 	return m, cmd
