@@ -106,7 +106,7 @@ func (m RecentModel) View() string {
 
 		if m.highlighted == i {
 			highlighted := fmt.Sprint(m.Styles.highlighted.Render(metadata.Title[0]))
-			s.WriteString(m.Styles.cursor.Render(m.cursor) + m.Styles.highlighted.Render(highlighted))
+			s.WriteString(m.Styles.cursor.Render(m.cursor) + highlighted)
 			s.WriteRune('\n')
 			continue
 		}
