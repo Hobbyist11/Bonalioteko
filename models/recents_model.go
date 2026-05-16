@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	keymaps "Bonalioteko/Keymaps"
@@ -97,12 +98,13 @@ func (m RecentModel) View() string {
 
 	for i, items := range m.choices {
 		metadata, err := epub.GetMetadataFromFile(items)
+		if err != nil || len(metadata.Title) == 0 {
+			metadata.Title[0] = filepath.Base(items)
+		}
+
 		if err != nil {
 			return fmt.Sprintf("error: %v\n\nPress any key to continue", err)
 		}
-		// if i < m.min || i > m.max {
-		// 	continue
-		// }
 
 		if m.highlighted == i {
 			highlighted := fmt.Sprint(m.Styles.highlighted.Render(metadata.Title[0]))
