@@ -63,15 +63,20 @@ func (m RecentModel) Update(msg tea.Msg) (RecentModel, tea.Cmd) {
 			if len(m.choices) == 0 || m.highlighted < 0 || m.highlighted >= len(m.choices) {
 				break
 			}
-			err := OpenFile(m.choices[m.highlighted])
+			if err := OpenFile(m.choices[m.highlighted]); err != nil {
+				m.err = err
+				break
+			}
+			if err := config.AddToRecentFileList(m.choices[m.highlighted]); err != nil {
+				m.err = err
+				break
+			}
+			choices, err := config.GetRecentsSlice()
 			if err != nil {
 				m.err = err
+				break
 			}
-			config.AddToRecentFileList(m.choices[m.highlighted])
-			m.choices, err = config.GetRecentsSlice()
-			if err != nil {
-				m.err = err
-			}
+			m.choices = choices
 
 		case key.Matches(msg, m.KeyMap.Quit):
 			cmd = func() tea.Msg { return ExitTagViewMsg{"Exit"} }
