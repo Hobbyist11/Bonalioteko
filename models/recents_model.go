@@ -98,7 +98,7 @@ func (m RecentModel) View() string {
 	for i, items := range m.choices {
 		metadata, err := epub.GetMetadataFromFile(items)
 		if err != nil {
-			return fmt.Sprintf("error: %v\n\nPress any key to continue", m.err)
+			return fmt.Sprintf("error: %v\n\nPress any key to continue", err)
 		}
 		// if i < m.min || i > m.max {
 		// 	continue
