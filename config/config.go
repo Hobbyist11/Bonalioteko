@@ -126,18 +126,13 @@ func (parser ConfigParser) createRecentFileIfMissing(configFilePath string) erro
 
 func AddToRecentFileList(newFile string) error {
 	var recent []string
-	configFilePath, err := os.UserConfigDir()
+	parser := initParser()
+	fullPath, err := parser.getRecentsFileOrCreate()
 	if err != nil {
 		return err
 	}
 
-	dir := filepath.Join(configFilePath, AppDir)
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-		return err
-	}
-
-	fullPath := filepath.Join(dir, RecentFilesName)
-	data, err := os.ReadFile(fullPath)
+	data, err := os.ReadFile(*fullPath)
 	if err == nil {
 		_ = json.Unmarshal(data, &recent)
 	}
@@ -157,7 +152,7 @@ func AddToRecentFileList(newFile string) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(fullPath, newData, 0o644)
+	return os.WriteFile(*fullPath, newData, 0o644)
 }
 
 // getRecentsFileOrCreate  returns the config file path or creates the config file if it doesn't exist.
