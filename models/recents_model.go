@@ -46,7 +46,6 @@ func (m RecentModel) Update(msg tea.Msg) (RecentModel, tea.Cmd) {
 		m.height = msg.Height
 		m.width = msg.Width
 		m.max = m.height - 1
-		m.titles = getTitlesFromPaths(m.choices)
 
 	case tea.KeyMsg:
 		if m.err != nil {
@@ -77,6 +76,7 @@ func (m RecentModel) Update(msg tea.Msg) (RecentModel, tea.Cmd) {
 				break
 			}
 			m.choices = choices
+			m.titles = getTitlesFromPaths(m.choices)
 
 		case key.Matches(msg, m.KeyMap.Quit):
 			cmd = func() tea.Msg { return ExitTagViewMsg{"Exit"} }
