@@ -133,8 +133,13 @@ func AddToRecentFileList(newFile string) error {
 	}
 
 	data, err := os.ReadFile(*fullPath)
-	if err == nil {
-		_ = json.Unmarshal(data, &recent)
+	switch {
+	case err == nil:
+		if err := json.Unmarshal(data, &recent); err != nil {
+			return err
+		}
+	case !errors.Is(err, os.ErrNotExist):
+		return err
 	}
 
 	updated := []string{newFile}
