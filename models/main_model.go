@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	keymaps "Bonalioteko/Keymaps"
+	"Bonalioteko/config"
 	"Bonalioteko/xattr"
 
 	"github.com/charmbracelet/bubbles/help"
@@ -22,6 +23,7 @@ const (
 	filterView modelState = iota
 	normalView
 	tagView
+	recentView
 )
 
 type modelState int
@@ -35,6 +37,7 @@ type Model struct {
 
 	filterModel list.Model
 	tagModel    tea.Model
+	recentModel RecentModel
 
 	ebookPaths []string
 
@@ -123,6 +126,7 @@ func InitialModel(dump *os.File, rootdir string) Model {
 		state:       normalView,
 		rootdir:     rootdir,
 		filterModel: list.New(listItems, Bonadelegate{styles: NewStyles()}, 80, 40),
+		recentModel: NewRecentsModel(),
 
 		ebookPaths:     find(rootdir, ".epub"),
 		choices:        choicesinit,
@@ -148,6 +152,7 @@ func InitialModel(dump *os.File, rootdir string) Model {
 		pathTags: xattr.GetXattrMapFilePathToTag(rootdir),
 		KeyMap:   keymaps.DefaultKeyMap(),
 		Help:     help.New(),
+		// err:      err,
 	}
 }
 
@@ -171,12 +176,6 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-type SpecialString string
-
-func (s SpecialString) FilterValue() string {
-	return ""
-}
-
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
@@ -188,7 +187,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
-		m.Height = 100
+		m.Height = msg.Height
 		m.max = m.Height - 1
 		m.filterModel.SetSize(30, 30)
 
@@ -267,8 +266,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.tagModel, cmd = m.tagModel.Update(msg)
 			cmds = append(cmds, cmd)
 
+		case recentView:
+			m.recentModel, cmd = m.recentModel.Update(msg)
+			cmds = append(cmds, cmd)
+
 		default:
 			switch {
+			case key.Matches(msg, m.KeyMap.Tab):
+				if m.state != recentView {
+					m.state = recentView
+				} else {
+					m.state = normalView
+				}
 
 			case key.Matches(msg, m.KeyMap.CursorUp):
 				m.moveCursorUp()
@@ -298,13 +307,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.state = tagView
 
 			case key.Matches(msg, m.KeyMap.Enter):
-				if len(m.ebookPaths) == 0 || m.highlighted < 0 || m.highlighted >= len(m.ebookPaths){
+				if len(m.ebookPaths) == 0 || m.highlighted < 0 || m.highlighted >= len(m.ebookPaths) {
 					break
 				}
 				err := OpenFile(m.ebookPaths[m.highlighted])
 				if err != nil {
 					m.err = err
+					break
 				}
+				if err := config.AddToRecentFileList(m.ebookPaths[m.highlighted]); err != nil {
+					m.err = err
+					break
+				}
+				choices, err := config.GetRecentsSlice()
+				if err != nil {
+					m.err = err
+				}
+				m.recentModel.choices = choices
+				m.recentModel.titles = getTitlesFromPaths(m.recentModel.choices)
+
 			case key.Matches(msg, m.KeyMap.Quit):
 				return m, tea.Quit
 			}
@@ -325,6 +346,9 @@ func (m Model) View() string {
 		return fmt.Sprintf("error: %v\n\nPress any key to continue", m.err)
 	}
 	switch m.state {
+
+	case recentView:
+		return m.recentModel.View()
 
 	case filterView:
 		return m.filterModel.View()
@@ -379,6 +403,7 @@ func (m Model) FullHelp() [][]key.Binding {
 		m.KeyMap.CursorUp,
 		m.KeyMap.CursorDown,
 		m.KeyMap.SpaceBar,
+		m.KeyMap.Filter,
 		m.KeyMap.Edit,
 	}}
 
@@ -398,6 +423,7 @@ func (m Model) ShortHelp() []key.Binding {
 		m.KeyMap.CursorUp,
 		m.KeyMap.CursorDown,
 		m.KeyMap.Filter,
+		m.KeyMap.Tab,
 	}
 
 	return append(kb,
