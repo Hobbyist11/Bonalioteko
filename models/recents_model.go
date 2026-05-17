@@ -165,8 +165,8 @@ func (m RecentModel) FullHelp() [][]key.Binding {
 	kb := [][]key.Binding{{
 		m.KeyMap.CursorUp,
 		m.KeyMap.CursorDown,
-		m.KeyMap.Filter,
-		m.KeyMap.Edit,
+		m.KeyMap.Tab,
+		m.KeyMap.Enter,
 	}}
 
 	return append(kb,
@@ -182,8 +182,8 @@ func (m RecentModel) ShortHelp() []key.Binding {
 	kb := []key.Binding{
 		m.KeyMap.CursorUp,
 		m.KeyMap.CursorDown,
-		m.KeyMap.Filter,
 		m.KeyMap.Tab,
+		m.KeyMap.Enter,
 	}
 
 	return append(kb,
