@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"path/filepath"
 	"strings"
 
 	keymaps "Bonalioteko/Keymaps"
@@ -12,15 +11,14 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/pirmd/epub"
 )
 
 type RecentModel struct {
 	err error
 
-	width       int
-	choices     []string
-	recentFiles []string
+	width   int
+	choices []string
+	titles  []string
 
 	min int
 	max int
@@ -48,6 +46,7 @@ func (m RecentModel) Update(msg tea.Msg) (RecentModel, tea.Cmd) {
 		m.height = msg.Height
 		m.width = msg.Width
 		m.max = m.height - 1
+		m.titles = getTitlesFromPaths(m.choices)
 
 	case tea.KeyMsg:
 		if m.err != nil {
@@ -96,43 +95,12 @@ func (m RecentModel) View() string {
 	}
 	var s strings.Builder
 
-	for i, items := range m.choices {
-		metadata, err := epub.GetMetadataFromFile(items)
-		if err != nil || len(metadata.Title) == 0 {
-			metadata.Title[0] = filepath.Base(items)
-		}
-
-		if err != nil {
-			return fmt.Sprintf("error: %v\n\nPress any key to continue", err)
-		}
-
-		if m.highlighted == i {
-			highlighted := fmt.Sprint(m.Styles.highlighted.Render(metadata.Title[0]))
-			s.WriteString(m.Styles.cursor.Render(m.cursor) + highlighted)
-			s.WriteRune('\n')
-			continue
-		}
-
-		s.WriteString(m.Styles.choices.Render(metadata.Title[0]))
-
-		s.WriteRune('\n')
-
-	}
-
-	return lipgloss.Place(50, 50, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Top, "Recent eBooks:\n", s.String(), m.helpView()))
-}
-
-func (m RecentModel) RecentsView() string {
-	var s strings.Builder
-
-	for i, items := range m.choices {
-		if i < m.min || i > m.max {
-			continue
-		}
+	for i, items := range m.titles {
 
 		if m.highlighted == i {
 			highlighted := fmt.Sprint(m.Styles.highlighted.Render(items))
-			s.WriteString(m.Styles.cursor.Render(m.cursor) + m.Styles.highlighted.Render(highlighted))
+			s.WriteString(m.Styles.cursor.Render(m.cursor) + highlighted)
+			s.WriteRune('\n')
 			continue
 		}
 
@@ -141,17 +109,20 @@ func (m RecentModel) RecentsView() string {
 		s.WriteRune('\n')
 
 	}
-	return s.String()
+
+	return lipgloss.Place(50, 50, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Top, "Recent eBooks:\n", s.String(), m.helpView()))
 }
 
 func NewRecentsModel() RecentModel {
 	choices, err := config.GetRecentsSlice()
 
+	titles := getTitlesFromPaths(choices)
 	return RecentModel{
 		err: err,
 
 		width:   10,
 		choices: choices,
+		titles:  titles,
 
 		min: 0,
 		max: 0,

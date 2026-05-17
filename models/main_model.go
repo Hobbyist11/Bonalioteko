@@ -269,6 +269,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case recentView:
 			m.recentModel, cmd = m.recentModel.Update(msg)
 			cmds = append(cmds, cmd)
+
 		default:
 			switch {
 			case key.Matches(msg, m.KeyMap.Tab):
@@ -314,15 +315,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.err = err
 					break
 				}
-				if err := config.AddToRecentFileList(m.ebookPaths[m.highlighted]); err != nil{
-				m.err = err
-				break
-			}
+				if err := config.AddToRecentFileList(m.ebookPaths[m.highlighted]); err != nil {
+					m.err = err
+					break
+				}
 				choices, err := config.GetRecentsSlice()
 				if err != nil {
 					m.err = err
 				}
 				m.recentModel.choices = choices
+				m.recentModel.titles = getTitlesFromPaths(m.recentModel.choices)
 
 			case key.Matches(msg, m.KeyMap.Quit):
 				return m, tea.Quit
