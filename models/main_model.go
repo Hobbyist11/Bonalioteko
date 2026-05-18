@@ -190,11 +190,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
-		// if m.AutoHeight {
+		if m.AutoHeight {
 		m.Height = msg.Height
-		// }
+		}
+		m.Width = msg.Width
+// TODO: Add a border so it doesn't get cut off when too small
 		m.max = m.Height - 1
-		m.filterModel.SetSize(30, 30)
+		m.filterModel.SetSize(m.Height, m.Width)
+		//TODO: SetSize for recentModel
+		// m.recentModel.SetSize(m.Height, m.Width)
 
 	case TagFilterMsg:
 		m.selectedTags = nil
@@ -393,7 +397,7 @@ func (m Model) View() string {
 			s.WriteRune('\n')
 
 		}
-		return lipgloss.Place(m.Width, m.Height, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Top, s.String(), m.helpView()))
+		return lipgloss.Place(m.Width, m.Height, lipgloss.Left, lipgloss.Top, lipgloss.JoinVertical(lipgloss.Top, s.String(), m.helpView()))
 	}
 }
 
