@@ -50,6 +50,7 @@ type Model struct {
 	max int
 
 	Height     int
+	Width      int
 	AutoHeight bool
 
 	tags map[string][]string
@@ -132,7 +133,9 @@ func InitialModel(dump *os.File, rootdir string) Model {
 		choices:        choicesinit,
 		initialChoices: choicesinit,
 		cursor:         ">",
+		AutoHeight:     true,
 		Height:         0,
+		Width:          0,
 		highlighted:    0,
 
 		Styles: DefaultStyles(),
@@ -187,7 +190,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
+		// if m.AutoHeight {
 		m.Height = msg.Height
+		// }
 		m.max = m.Height - 1
 		m.filterModel.SetSize(30, 30)
 
@@ -388,7 +393,7 @@ func (m Model) View() string {
 			s.WriteRune('\n')
 
 		}
-		return lipgloss.Place(50, 50, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Top, s.String(), m.helpView()))
+		return lipgloss.Place(m.Width, m.Height, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Top, s.String(), m.helpView()))
 	}
 }
 

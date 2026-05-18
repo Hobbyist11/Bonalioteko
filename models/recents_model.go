@@ -96,6 +96,9 @@ func (m RecentModel) View() string {
 	var s strings.Builder
 
 	for i, items := range m.titles {
+		if i < m.min || i > m.max {
+			continue
+		}
 
 		if m.highlighted == i {
 			highlighted := fmt.Sprint(m.Styles.highlighted.Render(items))
