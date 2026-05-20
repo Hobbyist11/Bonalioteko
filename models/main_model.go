@@ -195,7 +195,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Height = max(0,msg.Height - marginBottom)
 		}
 		m.Width = msg.Width
-		m.max = max(m.max, m.Height-1)
+		if m.Height <= 0{
+			m.min, m.max = 0, -1
+		} else{
+			m.max = m.min + m.Height -1
+			if m.max >= len(m.choices){
+				m.max = len(m.choices) -1
+			}
+		}
 		m.filterModel.SetSize(m.Height, m.Width)
 		m.Help.Width = msg.Width
 		m.recentModel.SetSize(m.Height, m.Width)
