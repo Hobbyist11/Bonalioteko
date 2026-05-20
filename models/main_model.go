@@ -24,6 +24,7 @@ const (
 	normalView
 	tagView
 	recentView
+	marginBottom = 5
 )
 
 type modelState int
@@ -50,6 +51,7 @@ type Model struct {
 	max int
 
 	Height     int
+	Width      int
 	AutoHeight bool
 
 	tags map[string][]string
@@ -132,7 +134,9 @@ func InitialModel(dump *os.File, rootdir string) Model {
 		choices:        choicesinit,
 		initialChoices: choicesinit,
 		cursor:         ">",
+		AutoHeight:     true,
 		Height:         0,
+		Width:          0,
 		highlighted:    0,
 
 		Styles: DefaultStyles(),
@@ -187,9 +191,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tea.WindowSizeMsg:
-		m.Height = msg.Height
-		m.max = m.Height - 1
-		m.filterModel.SetSize(30, 30)
+		if m.AutoHeight {
+			m.Height = max(0,msg.Height - marginBottom)
+		}
+		m.Width = msg.Width
+		if m.Height <= 0{
+			m.min, m.max = 0, -1
+		} else{
+			m.max = m.min + m.Height -1
+			if m.max >= len(m.choices){
+				m.max = len(m.choices) -1
+			}
+		}
+		m.filterModel.SetSize(m.Width, m.Height)
+		m.Help.Width = msg.Width
+		m.recentModel.SetSize(m.Width, m.Height)
 
 	case TagFilterMsg:
 		m.selectedTags = nil
@@ -388,7 +404,7 @@ func (m Model) View() string {
 			s.WriteRune('\n')
 
 		}
-		return lipgloss.Place(50, 50, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Top, s.String(), m.helpView()))
+		return lipgloss.Place(m.Width, m.Height, lipgloss.Left, lipgloss.Top, lipgloss.JoinVertical(lipgloss.Top, s.String(), m.helpView()))
 	}
 }
 

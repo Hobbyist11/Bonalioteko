@@ -96,6 +96,9 @@ func (m RecentModel) View() string {
 	var s strings.Builder
 
 	for i, items := range m.titles {
+		if i < m.min || i > m.max {
+			continue
+		}
 
 		if m.highlighted == i {
 			highlighted := fmt.Sprint(m.Styles.highlighted.Render(items))
@@ -110,7 +113,7 @@ func (m RecentModel) View() string {
 
 	}
 
-	return lipgloss.Place(50, 50, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Top, "Recent eBooks:\n", s.String(), m.helpView()))
+	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Top, "Recent eBooks:\n", s.String(), m.helpView()))
 }
 
 func NewRecentsModel() RecentModel {
@@ -194,4 +197,21 @@ func (m RecentModel) ShortHelp() []key.Binding {
 
 func (m RecentModel) helpView() string {
 	return m.Styles.HelpStyle.Render(m.Help.View(m))
+}
+
+func (m *RecentModel) SetSize(width, height int) {
+	m.width = width
+	m.height = max(0,height)
+	m.Help.Width = width
+	if m.height == 0 {
+		m.min, m.max = 0, -1
+		return
+	}
+	if m.min < 0 {
+		m.min =0
+	}
+	m.max = m.min + m.height -1
+	if last := len(m.titles) -1; m.max > last{
+		m.max = last
+	}
 }
