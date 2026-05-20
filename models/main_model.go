@@ -192,7 +192,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.WindowSizeMsg:
 		if m.AutoHeight {
-			m.Height = msg.Height - marginBottom
+			m.Height = max(0,msg.Height - marginBottom)
 		}
 		m.Width = msg.Width
 		m.max = max(m.max, m.Height-1)
