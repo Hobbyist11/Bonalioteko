@@ -195,7 +195,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Height = msg.Height - marginBottom
 		}
 		m.Width = msg.Width
-		// TODO: Add a border so it doesn't get cut off when too small
 		m.max = max(m.max, m.Height-1)
 		m.filterModel.SetSize(m.Height, m.Width)
 		m.Help.Width = msg.Width
