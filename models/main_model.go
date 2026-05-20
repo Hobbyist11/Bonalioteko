@@ -24,6 +24,7 @@ const (
 	normalView
 	tagView
 	recentView
+	marginBottom = 5
 )
 
 type modelState int
@@ -191,14 +192,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.WindowSizeMsg:
 		if m.AutoHeight {
-		m.Height = msg.Height
+			m.Height = msg.Height - marginBottom
 		}
 		m.Width = msg.Width
-// TODO: Add a border so it doesn't get cut off when too small
-		m.max = m.Height - 1
+		// TODO: Add a border so it doesn't get cut off when too small
+		m.max = max(m.max, m.Height-1)
 		m.filterModel.SetSize(m.Height, m.Width)
-		//TODO: SetSize for recentModel
-		// m.recentModel.SetSize(m.Height, m.Width)
+		m.Help.Width = msg.Width
+		m.recentModel.SetSize(m.Height, m.Width)
 
 	case TagFilterMsg:
 		m.selectedTags = nil

@@ -198,3 +198,9 @@ func (m RecentModel) ShortHelp() []key.Binding {
 func (m RecentModel) helpView() string {
 	return m.Styles.HelpStyle.Render(m.Help.View(m))
 }
+
+func (m *RecentModel) SetSize(width, height int) {
+	m.width = width
+	m.height = height
+	m.Help.Width = width
+}
