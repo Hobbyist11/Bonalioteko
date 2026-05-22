@@ -113,7 +113,7 @@ func (m RecentModel) View() string {
 
 	}
 
-	return lipgloss.Place(m.width, m.height, lipgloss.Center, lipgloss.Center, lipgloss.JoinVertical(lipgloss.Top, "Recent eBooks:\n", s.String(), m.helpView()))
+	return lipgloss.Place(m.width, m.height, lipgloss.Left, lipgloss.Top, lipgloss.JoinVertical(lipgloss.Top, "Recent eBooks:\n", s.String(), m.helpView()))
 }
 
 func NewRecentsModel() RecentModel {

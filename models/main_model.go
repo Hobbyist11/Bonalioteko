@@ -127,7 +127,7 @@ func InitialModel(dump *os.File, rootdir string) Model {
 		dump:        dump,
 		state:       normalView,
 		rootdir:     rootdir,
-		filterModel: list.New(listItems, Bonadelegate{styles: NewStyles()}, 80, 40),
+		filterModel: list.New(listItems, Bonadelegate{styles: NewStyles()}, 10, 10),
 		recentModel: NewRecentsModel(),
 
 		ebookPaths:     find(rootdir, ".epub"),
