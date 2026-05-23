@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/lipgloss"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -21,6 +23,26 @@ type (
 		status bool
 	}
 )
+
+type delegateStyles struct {
+	cursor    lipgloss.Style
+	greyed    lipgloss.Style
+	item      lipgloss.Style
+	selected  lipgloss.Style
+	tag       lipgloss.Style
+	HelpStyle lipgloss.Style
+}
+
+func NewStyles() delegateStyles {
+	var s delegateStyles
+	s.greyed = lipgloss.NewStyle().Foreground(lipgloss.Color("#3C3C3C"))
+	s.cursor = lipgloss.NewStyle().Foreground(lipgloss.Color("202"))
+	s.item = lipgloss.NewStyle().Foreground(lipgloss.Color("02"))
+	s.selected = lipgloss.NewStyle().Foreground(lipgloss.Color("201"))
+	s.tag = lipgloss.NewStyle().Foreground(lipgloss.Color("5"))
+	s.HelpStyle = lipgloss.NewStyle().Padding(1, 0, 0, 2)
+	return s
+}
 
 func (i TitleItem) Title() string       { return "" }
 func (i TitleItem) Description() string { return "" }
@@ -45,7 +67,10 @@ type (
 		TagItem *TagItem
 	}
 	Bonadelegate struct {
-		styles delegateStyles
+		styles        delegateStyles
+		UpdateFunc    func(tea.Msg, *Model) tea.Cmd
+		ShortHelpFunc func() []key.Binding
+		FullHelpFunc  func() [][]key.Binding
 	}
 )
 
@@ -55,7 +80,6 @@ func (d Bonadelegate) Spacing() int { return 0 }
 func (d Bonadelegate) Update(msg tea.Msg, lm *list.Model) tea.Cmd {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-
 		if msg.String() == " " {
 			if tag, ok := lm.SelectedItem().(*TagItem); ok {
 				tag.status = !tag.status
@@ -77,9 +101,9 @@ func (d Bonadelegate) Render(w io.Writer, m list.Model, index int, item list.Ite
 			fmt.Fprintf(w, "📖%s ", d.styles.item.Render(v.Book))
 		case *TagItem:
 			if !v.status {
-				fmt.Fprintf(w, "  🏷 %s", d.styles.item.Render(v.Tag))
+				fmt.Fprintf(w, "🏷%s", d.styles.item.Render(v.Tag))
 			} else {
-				fmt.Fprintf(w, "  🏷 %s", d.styles.selected.Render(v.Tag))
+				fmt.Fprintf(w, "🏷%s", d.styles.selected.Render(v.Tag))
 			}
 		}
 
@@ -90,19 +114,19 @@ func (d Bonadelegate) Render(w io.Writer, m list.Model, index int, item list.Ite
 			case *TitleItem:
 				fmt.Fprintf(w, "📖%s ", d.styles.cursor.Render(prefix+v.Book))
 			case *TagItem:
-				fmt.Fprintf(w, "🏷 %s", d.styles.cursor.Render(v.Tag))
+				fmt.Fprintf(w, "🏷%s", d.styles.cursor.Render(v.Tag))
 			}
 			return
 		}
 
 		switch v := item.(type) {
 		case *TitleItem:
-			fmt.Fprintf(w, " 📖 %s ", d.styles.greyed.Render(v.Book))
+			fmt.Fprintf(w, "📖%s ", d.styles.greyed.Render(v.Book))
 		case *TagItem:
 			if !v.status {
-				fmt.Fprintf(w, "🏷 %s", d.styles.item.Render(v.Tag))
+				fmt.Fprintf(w, "🏷%s", d.styles.item.Render(v.Tag))
 			} else {
-				fmt.Fprintf(w, "🏷 %s", d.styles.selected.Render(v.Tag))
+				fmt.Fprintf(w, "🏷%s", d.styles.selected.Render(v.Tag))
 			}
 		}
 	}

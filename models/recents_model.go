@@ -201,17 +201,17 @@ func (m RecentModel) helpView() string {
 
 func (m *RecentModel) SetSize(width, height int) {
 	m.width = width
-	m.height = max(0,height)
+	m.height = max(0, height)
 	m.Help.Width = width
 	if m.height == 0 {
 		m.min, m.max = 0, -1
 		return
 	}
 	if m.min < 0 {
-		m.min =0
+		m.min = 0
 	}
-	m.max = m.min + m.height -1
-	if last := len(m.titles) -1; m.max > last{
+	m.max = m.min + m.height - 1
+	if last := len(m.titles) - 1; m.max > last {
 		m.max = last
 	}
 }

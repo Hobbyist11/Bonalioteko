@@ -84,25 +84,6 @@ type Styles struct {
 	HelpStyle      lipgloss.Style
 }
 
-type delegateStyles struct {
-	cursor    lipgloss.Style
-	greyed    lipgloss.Style
-	item      lipgloss.Style
-	selected  lipgloss.Style
-	tag       lipgloss.Style
-	HelpStyle lipgloss.Style
-}
-
-func NewStyles() delegateStyles {
-	var s delegateStyles
-	s.greyed = lipgloss.NewStyle().Foreground(lipgloss.Color("#3C3C3C"))
-	s.cursor = lipgloss.NewStyle().Foreground(lipgloss.Color("202"))
-	s.item = lipgloss.NewStyle().Foreground(lipgloss.Color("02"))
-	s.selected = lipgloss.NewStyle().Foreground(lipgloss.Color("201"))
-	s.tag = lipgloss.NewStyle().Foreground(lipgloss.Color("5"))
-	s.HelpStyle = lipgloss.NewStyle().Padding(1, 0, 0, 2)
-	return s
-}
 
 func initItems(choices []string, tags []string) []ResultItem {
 	var items []ResultItem
@@ -127,7 +108,7 @@ func InitialModel(dump *os.File, rootdir string) Model {
 		dump:        dump,
 		state:       normalView,
 		rootdir:     rootdir,
-		filterModel: list.New(listItems, Bonadelegate{styles: NewStyles()}, 10, 10),
+		filterModel: list.New(listItems, Bonadelegate{styles: NewStyles()}, 0, 0),
 		recentModel: NewRecentsModel(),
 
 		ebookPaths:     find(rootdir, ".epub"),
@@ -192,20 +173,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.WindowSizeMsg:
 		if m.AutoHeight {
-			m.Height = max(0,msg.Height - marginBottom)
+			m.Height = max(0, msg.Height-marginBottom)
 		}
 		m.Width = msg.Width
-		if m.Height <= 0{
+		if m.Height <= 0 {
 			m.min, m.max = 0, -1
-		} else{
-			m.max = m.min + m.Height -1
-			if m.max >= len(m.choices){
-				m.max = len(m.choices) -1
+		} else {
+			m.max = m.min + m.Height - 1
+			if m.max >= len(m.choices) {
+				m.max = len(m.choices) - 1
 			}
 		}
-		m.filterModel.SetSize(m.Width, m.Height)
 		m.Help.Width = msg.Width
 		m.recentModel.SetSize(m.Width, m.Height)
+		m.filterModel.SetSize(m.Width, m.Height)
 
 	case TagFilterMsg:
 		m.selectedTags = nil
@@ -268,6 +249,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		switch state := m.state; state {
+
 		case filterView:
 			m.filterModel, cmd = m.filterModel.Update(msg)
 			cmds = append(cmds, cmd)
