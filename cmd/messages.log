@@ -1,0 +1,369 @@
+(tea.WindowSizeMsg) {
+ Width: (int) 150,
+ Height: (int) 34
+}
+(tea.KeyMsg) /
+(cursor.initialBlinkMsg) {
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 3
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 3
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 4
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 4
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 5
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 5
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 6
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 6
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 7
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 7
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 8
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 8
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 9
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 9
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 10
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 10
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 11
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 11
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 12
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 12
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 13
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 13
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 14
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 14
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 15
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 15
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 16
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 16
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 17
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 17
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 18
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 18
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 19
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 19
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 20
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 20
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 21
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 21
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 22
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 22
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 23
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 23
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 24
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 24
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 25
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 25
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 26
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 26
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 27
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 27
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 28
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 28
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 29
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 29
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 30
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 30
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 31
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 31
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 32
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 32
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 33
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 33
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 34
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 34
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 35
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 35
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 36
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 36
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 37
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 37
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 38
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 38
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 39
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 39
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 40
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 40
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 41
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 41
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 42
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 42
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 43
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 43
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 44
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 44
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 45
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 45
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 46
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 46
+}
+(tea.KeyMsg) esc
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 47
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 47
+}
+(tea.KeyMsg) esc

@@ -67,10 +67,12 @@ type (
 		TagItem *TagItem
 	}
 	Bonadelegate struct {
-		styles        delegateStyles
-		UpdateFunc    func(tea.Msg, *Model) tea.Cmd
+		styles delegateStyles
+		// UpdateFunc    func(tea.Msg, *list.Model) tea.Cmd
 		ShortHelpFunc func() []key.Binding
 		FullHelpFunc  func() [][]key.Binding
+		// height        int
+		// spacing       int
 	}
 )
 
@@ -98,12 +100,12 @@ func (d Bonadelegate) Render(w io.Writer, m list.Model, index int, item list.Ite
 	case list.Filtering:
 		switch v := item.(type) {
 		case *TitleItem:
-			fmt.Fprintf(w, "📖%s ", d.styles.item.Render(v.Book))
+			fmt.Fprintf(w,"📖 %s", d.styles.item.Render(v.Book))
 		case *TagItem:
 			if !v.status {
-				fmt.Fprintf(w, "🏷%s", d.styles.item.Render(v.Tag))
+				fmt.Fprintf(w,"🏷  %s", d.styles.item.Render(v.Tag))
 			} else {
-				fmt.Fprintf(w, "🏷%s", d.styles.selected.Render(v.Tag))
+				fmt.Fprintf(w,"🏷  %s", d.styles.selected.Render(v.Tag))
 			}
 		}
 
@@ -112,21 +114,20 @@ func (d Bonadelegate) Render(w io.Writer, m list.Model, index int, item list.Ite
 			prefix := "> "
 			switch v := item.(type) {
 			case *TitleItem:
-				fmt.Fprintf(w, "📖%s ", d.styles.cursor.Render(prefix+v.Book))
+				fmt.Fprintf(w,"📖 %s", d.styles.cursor.Render(prefix+v.Book))
 			case *TagItem:
-				fmt.Fprintf(w, "🏷%s", d.styles.cursor.Render(v.Tag))
+				fmt.Fprintf(w,"🏷  %s", d.styles.cursor.Render(prefix+v.Tag))
 			}
-			return
 		}
 
 		switch v := item.(type) {
 		case *TitleItem:
-			fmt.Fprintf(w, "📖%s ", d.styles.greyed.Render(v.Book))
+			fmt.Fprintf(w,"📖 %s", d.styles.greyed.Render(v.Book))
 		case *TagItem:
 			if !v.status {
-				fmt.Fprintf(w, "🏷%s", d.styles.item.Render(v.Tag))
+				fmt.Fprintf(w,"🏷  %s", d.styles.item.Render(v.Tag))
 			} else {
-				fmt.Fprintf(w, "🏷%s", d.styles.selected.Render(v.Tag))
+				fmt.Fprintf(w,"🏷  %s", d.styles.selected.Render(v.Tag))
 			}
 		}
 	}

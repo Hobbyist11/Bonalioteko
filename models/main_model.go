@@ -84,7 +84,6 @@ type Styles struct {
 	HelpStyle      lipgloss.Style
 }
 
-
 func initItems(choices []string, tags []string) []ResultItem {
 	var items []ResultItem
 	for _, title := range choices {
@@ -137,7 +136,7 @@ func InitialModel(dump *os.File, rootdir string) Model {
 		pathTags: xattr.GetXattrMapFilePathToTag(rootdir),
 		KeyMap:   keymaps.DefaultKeyMap(),
 		Help:     help.New(),
-		// err:      err,
+		// err:      nil,
 	}
 }
 
@@ -173,20 +172,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.WindowSizeMsg:
 		if m.AutoHeight {
-			m.Height = max(0, msg.Height-marginBottom)
+			m.Height = max(0,msg.Height - marginBottom)
 		}
 		m.Width = msg.Width
-		if m.Height <= 0 {
+		if m.Height <= 0{
 			m.min, m.max = 0, -1
-		} else {
-			m.max = m.min + m.Height - 1
-			if m.max >= len(m.choices) {
-				m.max = len(m.choices) - 1
+		} else{
+			m.max = m.min + m.Height -1
+			if m.max >= len(m.choices){
+				m.max = len(m.choices) -1
 			}
 		}
+		m.filterModel.SetSize(msg.Height, m.Height)
 		m.Help.Width = msg.Width
 		m.recentModel.SetSize(m.Width, m.Height)
-		m.filterModel.SetSize(m.Width, m.Height)
+
 
 	case TagFilterMsg:
 		m.selectedTags = nil
@@ -349,6 +349,7 @@ func (m Model) View() string {
 		return m.recentModel.View()
 
 	case filterView:
+		m.filterModel.Title = fmt.Sprintf("DEBUG size term=%dx%d list=%dx%d", m.Width, m.Height, m.filterModel.Width(), m.filterModel.Height())
 		return m.filterModel.View()
 
 	case tagView:
