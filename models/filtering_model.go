@@ -100,13 +100,14 @@ func (d Bonadelegate) Render(w io.Writer, m list.Model, index int, item list.Ite
 	case list.Filtering:
 		switch v := item.(type) {
 		case *TitleItem:
-			fmt.Fprintf(w,"📖 %s", d.styles.item.Render(v.Book))
+			fmt.Fprintf(w, "📖 %s", d.styles.item.Render(v.Book))
 		case *TagItem:
 			if !v.status {
-				fmt.Fprintf(w,"🏷  %s", d.styles.item.Render(v.Tag))
+				fmt.Fprintf(w, "🏷  %s", d.styles.item.Render(v.Tag))
 			} else {
-				fmt.Fprintf(w,"🏷  %s", d.styles.selected.Render(v.Tag))
+				fmt.Fprintf(w, "🏷  %s", d.styles.selected.Render(v.Tag))
 			}
+
 		}
 
 	case list.FilterApplied, list.Unfiltered:
@@ -114,20 +115,21 @@ func (d Bonadelegate) Render(w io.Writer, m list.Model, index int, item list.Ite
 			prefix := "> "
 			switch v := item.(type) {
 			case *TitleItem:
-				fmt.Fprintf(w,"📖 %s", d.styles.cursor.Render(prefix+v.Book))
+				fmt.Fprintf(w, "📖 %s", d.styles.cursor.Render(prefix+v.Book))
 			case *TagItem:
-				fmt.Fprintf(w,"🏷  %s", d.styles.cursor.Render(prefix+v.Tag))
+				fmt.Fprintf(w, "🏷  %s", d.styles.cursor.Render(prefix+v.Tag))
 			}
+			break
 		}
 
 		switch v := item.(type) {
 		case *TitleItem:
-			fmt.Fprintf(w,"📖 %s", d.styles.greyed.Render(v.Book))
+			fmt.Fprintf(w, "📖 %s", d.styles.greyed.Render(v.Book))
 		case *TagItem:
 			if !v.status {
-				fmt.Fprintf(w,"🏷  %s", d.styles.item.Render(v.Tag))
+				fmt.Fprintf(w, "🏷  %s", d.styles.item.Render(v.Tag))
 			} else {
-				fmt.Fprintf(w,"🏷  %s", d.styles.selected.Render(v.Tag))
+				fmt.Fprintf(w, "🏷  %s", d.styles.selected.Render(v.Tag))
 			}
 		}
 	}

@@ -183,7 +183,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.max = len(m.choices) -1
 			}
 		}
-		m.filterModel.SetSize(msg.Height, m.Height)
+		m.filterModel.SetSize(m.Width-1,m.Height)
 		m.Help.Width = msg.Width
 		m.recentModel.SetSize(m.Width, m.Height)
 
@@ -293,6 +293,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.selectOrDeselectTag()
 
 			case key.Matches(msg, m.KeyMap.Filter):
+				// m.filterModel.ResetFilter()
 				m.state = filterView
 				m.filterModel, cmd = m.filterModel.Update(msg)
 
