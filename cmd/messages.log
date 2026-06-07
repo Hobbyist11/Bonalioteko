@@ -1,0 +1,17 @@
+(tea.WindowSizeMsg) {
+ Width: (int) 80,
+ Height: (int) 34
+}
+(tea.KeyMsg) /
+(cursor.initialBlinkMsg) {
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 3
+}
+(cursor.BlinkMsg) {
+ id: (int) 0,
+ tag: (int) 3
+}
+(tea.KeyMsg) esc
+(tea.KeyMsg) esc

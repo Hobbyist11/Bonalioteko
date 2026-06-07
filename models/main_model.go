@@ -84,26 +84,6 @@ type Styles struct {
 	HelpStyle      lipgloss.Style
 }
 
-type delegateStyles struct {
-	cursor    lipgloss.Style
-	greyed    lipgloss.Style
-	item      lipgloss.Style
-	selected  lipgloss.Style
-	tag       lipgloss.Style
-	HelpStyle lipgloss.Style
-}
-
-func NewStyles() delegateStyles {
-	var s delegateStyles
-	s.greyed = lipgloss.NewStyle().Foreground(lipgloss.Color("#3C3C3C"))
-	s.cursor = lipgloss.NewStyle().Foreground(lipgloss.Color("202"))
-	s.item = lipgloss.NewStyle().Foreground(lipgloss.Color("02"))
-	s.selected = lipgloss.NewStyle().Foreground(lipgloss.Color("201"))
-	s.tag = lipgloss.NewStyle().Foreground(lipgloss.Color("5"))
-	s.HelpStyle = lipgloss.NewStyle().Padding(1, 0, 0, 2)
-	return s
-}
-
 func initItems(choices []string, tags []string) []ResultItem {
 	var items []ResultItem
 	for _, title := range choices {
@@ -127,7 +107,7 @@ func InitialModel(dump *os.File, rootdir string) Model {
 		dump:        dump,
 		state:       normalView,
 		rootdir:     rootdir,
-		filterModel: list.New(listItems, Bonadelegate{styles: NewStyles()}, 80, 40),
+		filterModel: list.New(listItems, Bonadelegate{styles: NewStyles()}, 0, 0),
 		recentModel: NewRecentsModel(),
 
 		ebookPaths:     find(rootdir, ".epub"),
@@ -156,7 +136,7 @@ func InitialModel(dump *os.File, rootdir string) Model {
 		pathTags: xattr.GetXattrMapFilePathToTag(rootdir),
 		KeyMap:   keymaps.DefaultKeyMap(),
 		Help:     help.New(),
-		// err:      err,
+		// err:      nil,
 	}
 }
 
@@ -203,9 +183,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.max = len(m.choices) -1
 			}
 		}
-		m.filterModel.SetSize(m.Width, m.Height)
+		m.filterModel.SetSize(m.Width-1,m.Height)
 		m.Help.Width = msg.Width
 		m.recentModel.SetSize(m.Width, m.Height)
+
 
 	case TagFilterMsg:
 		m.selectedTags = nil
@@ -268,6 +249,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 		}
 		switch state := m.state; state {
+
 		case filterView:
 			m.filterModel, cmd = m.filterModel.Update(msg)
 			cmds = append(cmds, cmd)
@@ -311,6 +293,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.selectOrDeselectTag()
 
 			case key.Matches(msg, m.KeyMap.Filter):
+				// m.filterModel.ResetFilter()
 				m.state = filterView
 				m.filterModel, cmd = m.filterModel.Update(msg)
 
@@ -367,6 +350,7 @@ func (m Model) View() string {
 		return m.recentModel.View()
 
 	case filterView:
+		m.filterModel.Title = fmt.Sprintf("DEBUG size term=%dx%d list=%dx%d", m.Width, m.Height, m.filterModel.Width(), m.filterModel.Height())
 		return m.filterModel.View()
 
 	case tagView:
