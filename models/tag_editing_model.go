@@ -130,7 +130,7 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					break
 				}
 				if err := xattr.RemoveTag(m.fileName, m.Tags[m.cursor]); err != nil {
-					m.err = err
+					// m.err = err
 					return m, nil
 				}
 
