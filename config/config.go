@@ -13,7 +13,7 @@ import (
 
 var (
 	homedir, _ = os.UserHomeDir()
-	ebookdir   = filepath.Join(homedir, "Downloads/Ebooks/")
+	ebookdir   = filepath.Join(homedir, "Downloads/Ebooks/Standard/")
 )
 
 // AppDir is the name of the directory where the config file is stored.

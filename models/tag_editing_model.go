@@ -137,7 +137,12 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				var err error
 				m.Tags, err = xattr.GetTagsFromPath(m.fileName)
 				if err != nil {
-					m.err = err
+					if strings.Contains(err.Error(), "no data") {
+						m.err = nil
+						m.Tags = []string{"untagged"}
+					} else {
+						m.err = err
+					}
 				}
 				m.cursor = 0
 				return m, func() tea.Msg { return TagsUpdatedMsg{NewTags: m.Tags, filename: m.fileName} }

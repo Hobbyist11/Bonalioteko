@@ -350,7 +350,6 @@ func (m Model) View() string {
 		return m.recentModel.View()
 
 	case filterView:
-		m.filterModel.Title = fmt.Sprintf("DEBUG size term=%dx%d list=%dx%d", m.Width, m.Height, m.filterModel.Width(), m.filterModel.Height())
 		return m.filterModel.View()
 
 	case tagView:
