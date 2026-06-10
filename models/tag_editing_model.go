@@ -139,6 +139,7 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if err != nil {
 					if strings.Contains(err.Error(), "no data") {
 						m.err = nil
+						m.Tags = []string{"untagged"}
 					} else {
 						m.err = err
 					}
