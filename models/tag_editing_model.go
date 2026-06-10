@@ -130,14 +130,18 @@ func (m TagEditModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					break
 				}
 				if err := xattr.RemoveTag(m.fileName, m.Tags[m.cursor]); err != nil {
-					// m.err = err
+					m.err = err
 					return m, nil
 				}
 
 				var err error
 				m.Tags, err = xattr.GetTagsFromPath(m.fileName)
 				if err != nil {
-					m.err = err
+					if strings.Contains(err.Error(), "no data") {
+						m.err = nil
+					} else {
+						m.err = err
+					}
 				}
 				m.cursor = 0
 				return m, func() tea.Msg { return TagsUpdatedMsg{NewTags: m.Tags, filename: m.fileName} }
